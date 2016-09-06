@@ -1,0 +1,433 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/jqueryui.css">
+    <link rel="stylesheet" href="css/crustacean.css">
+    <script src="./js/jquery.js"></script>
+    <script src="./js/jqueryui.js"></script>
+    <script src="./js/highcharts.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    var parameterRange = [];
+    parameterRange.gNa = [0, 0.5];
+    parameterRange.gK = [0, 0.5];
+    parameterRange.ENa = [0, 90];
+    parameterRange.EK = [-95, -50];
+    parameterRange.I = [-20, 30];
+    parameterRange.gFC = [0, 1];
+    $(document).ready(function () {
+        var gNa = $('#gNa');
+        var gK = $("#gK");
+        var ENa = $("#ENa");
+        var EK = $("#EK");
+        var IDC = $("#IDC");
+        var gFlash = $("#gFlash");
+
+        gNa.spinner({
+            min: 0.0,
+            max: 0.5,
+            step: 0.01,
+            change: function () {
+                if (parseFloat(gNa.val()) < parameterRange.gNa[0]) {
+                    gNa.val(parameterRange.gNa[0])
+                } else if (parseFloat(gNa.val()) > parameterRange.gNa[1]) {
+                    gNa.val(parameterRange.gNa[1])
+                }
+            }
+        });
+        gK.spinner({
+            min: 0.0,
+            max: 0.5,
+            step: 0.01,
+            change: function () {
+                if (parseFloat(gK.val()) < parameterRange.gK[0]) {
+                    gK.val(parameterRange.gK[0])
+                } else if (parseFloat(gK.val()) > parameterRange.gK[1]) {
+                    gK.val(parameterRange.gK[1])
+                }
+            }
+        });
+        ENa.spinner({
+            min: 0,
+            max: 90,
+            step: 1,
+            change: function () {
+                if (parseFloat(ENa.val()) < parameterRange.ENa[0]) {
+                    ENa.val(parameterRange.ENa[0])
+                } else if (parseFloat(ENa.val()) > parameterRange.ENa[1]) {
+                    ENa.val(parameterRange.ENa[1])
+                }
+                updateGraph();
+            },
+            spin: function () {
+                updateGraph();
+            }
+        });
+        EK.spinner({
+            min: -95,
+            max: -50,
+            step: 1,
+            spin: function () {
+                updateGraph()
+            },
+            change: function () {
+                if (parseFloat(EK.val()) < parameterRange.EK[0]) {
+                    EK.val(parameterRange.EK[0])
+                } else if (parseFloat(EK.val()) > parameterRange.EK[1]) {
+                    EK.val(parameterRange.EK[1])
+                }
+                updateGraph()
+            }
+        });
+
+        IDC.spinner({
+            min: -20.0,
+            max: 30.0,
+            step: 0.1,
+            change: function () {
+                if (parseFloat(IDC.val()) < parameterRange.I[0]) {
+                    IDC.val(parameterRange.I[0])
+                } else if (parseFloat(IDC.val()) > parameterRange.I[1]) {
+                    IDC.val(parameterRange.I[1])
+                }
+            }
+        });
+        gFlash.spinner({
+            min: 0,
+            max: 1.0,
+            step: 0.05,
+            change: function () {
+                if (parseFloat(gFlash.val()) < parameterRange.gFC[0]) {
+                    gFlash.val(parameterRange.gFC[0])
+                } else if (parseFloat(gFlash.val()) > parameterRange.gFC[1]) {
+                    gFlash.val(parameterRange.gFC[1])
+                }
+            }
+        });
+
+        $("#runButton").button();
+        makeGraph_V();
+        makeGraph_I();
+    });
+
+</script>
+<div id="plotting_pane">
+    <div id="volt_graph"></div>
+    <div id="current_graph"></div>
+    <div id="mnh_graph"></div>
+</div>
+<div id="controlPane">
+    <br/>
+    <span style="float:left;"><b>FLASHING CRUSTACEAN - Scenario 1</b></span><br/>
+    <hr/>
+    <span style="float:left;"><b>Resting Potential Properties</b></span><br/>
+    <label for="gNa">Sodium Conductance</label><input id="gNa" value="0.1" class="slider_pane"/><span>S/m^2</span><br/>
+    <label for="gK">Potassium Conductance</label>
+    <input id="gK" class="slider_pane" value="0.2"/><span>S/m^2</span><br/>
+
+    <hr/>
+    <span style="float:left;"><b>Equilibrium Potentials</b></span><br/>
+    <label for="ENa">Sodium Equilibrium Potential</label>
+    <input id="ENa" class="slider_pane" value="55"/><span>mV</span><br/>
+    <label for="EK">Potassium Equilibrium Potential</label>
+    <input id="EK" class="slider_pane" value="-72"/><span>mV</span><br/>
+    <hr/>
+    <span style="float:left;"><b>DC Controls</b></span><br/>
+    <label for="IDC">Injected Current</label>
+    <input id="IDC" class="slider_pane" value="0"/><span>A/m^2</span><br/>
+    <hr/>
+    <span style="float:left;"><b>Flash Channel</b></span><br/>
+    <label for="gFlash">Conductance</label>
+    <input id="gFlash" class="slider_pane" value="0.25"/><br/>
+    <hr/>
+    <span style="float:left;"><b>Simulation Controls</b></span><br/><br/>
+    <input type="button" value="Run" id="runButton" onclick="simulate()"/><br/>
+    <br/>
+    <span>Refresh your browser to restore default values</span>
+</div>
+
+<script type="text/javascript">
+
+    function makeGraph_V(v) {
+        $('#volt_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 10,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 250
+
+            },
+            hover: false,
+            title: {
+                text: ' ' //'Neuron Dynamics'
+            },
+            xAxis: [{}],
+            yAxis: [{
+                min: -100,
+                max: 100,
+                title: {
+                    text: 'Voltage (mV)',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                plotLines: [{
+                    id: "na",
+                    color: '#FF0000',
+                    width: 2,
+                    dashStyle: 'dot',
+                    value: parseFloat($("#ENa").val()), // line at ENa
+                    label: {
+                        text: "ENa",
+                        align: "right",
+                        style: {
+                            color: 'red',
+                            fontSize: '16px'
+                        }
+                    }
+                },
+                    {
+                        id: "k",
+                        color: '#FF0000',
+                        width: 2,
+                        dashStyle: 'dot',
+                        value: parseFloat($("#EK").val()), // line at EK
+                        label: {
+                            text: "EK",
+                            align: "right",
+                            style: {
+                                color: 'red',
+                                fontSize: '16px'
+                            }
+                        }
+                    }]
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} ms</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} mV </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: 'Membrane Voltage',
+                pointStart: 0,
+                pointInterval: 0.04,
+                data: v,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }]
+        });
+
+    }
+
+
+    function makeGraph_I(i) {
+        $('#current_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 23,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 120
+
+            },
+            hover: false,
+            title: {
+                text: ' ' //'Neuron Dynamics'
+            },
+            xAxis: [{}],
+            yAxis: [{
+                min: 0,
+                max: 1,
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: 'closed/open',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+                //opposite: true
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} ms</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y}  </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 0
+            },
+
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: 'channel state',
+                data: i,
+                pointStart: 0,
+                pointInterval: 0.04,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+            }]
+        });
+    }
+
+
+    function simulate() {
+        var dt = 0.01;
+        var Cm = 0.1;
+        var Iin = parseFloat($("#IDC").val());
+
+        var ENa = parseFloat($("#ENa").val());
+        var EK = parseFloat($("#EK").val());
+
+        var gNa = parseFloat($("#gNa").val());
+        var gK = parseFloat($("#gK").val());
+        var gChan = parseFloat($("#gFlash").val());
+
+        var VRest = (Iin + gNa * ENa + gK * EK) / (gNa + gK);
+
+        var times = [];
+        var simTime = 100;
+
+        var nSteps = simTime / dt;
+
+        var V = [];
+
+        var ipi = 20;
+        var dur = 10;
+
+        var numpulse = 3;
+        var tstimon = ipi;
+        var tstimoff = tstimon + dur;
+
+        var cntpulse = 0;
+        var Eflash = EK;
+        var gFlash = [];
+        gFlash[0] = 0;
+
+        V[0] = VRest;
+        times[0] = 0;
+        for (var i = 0; i < nSteps - 1; i++) {
+            var chan_state = 0;
+
+            times[i + 1] = (i + 1) * dt;
+
+            if (times[i + 1] > tstimon && cntpulse < numpulse) {
+                chan_state = 1;
+                if (times[i + 1] > tstimoff) {
+                    tstimon = times[i + 1] + ipi;
+                    tstimoff = tstimon + dur;
+                    cntpulse++
+                }
+            }
+
+            gFlash[i + 1] = chan_state;
+
+            var INa = gNa * (V[i] - ENa);
+            var IK = gK * (V[i] - EK);
+            var Il = gChan * gFlash[i] * (V[i] - Eflash);
+            V[i + 1] = V[i] + dt * ((1.0 / Cm) * (Iin - (INa + IK + Il)));
+        }
+        makeGraph_V(V);
+        makeGraph_I(gFlash);
+
+    }
+
+
+    function updateGraph() {
+        var vg = $('#volt_graph');
+        vg.highcharts().yAxis[0].removePlotLine("na");
+        vg.highcharts().yAxis[0].addPlotLine({
+            id: "na",
+            color: '#FF0000',
+            width: 2,
+            dashStyle: 'dot',
+            value: parseFloat($("#ENa").val()), // line at ENa
+            label: {
+                text: "ENa",
+                align: "right",
+                style: {
+                    color: 'red',
+                    fontSize: '16px'
+                }
+            }
+        });
+        vg.highcharts().yAxis[0].removePlotLine("k");
+        vg.highcharts().yAxis[0].addPlotLine({
+            id: "k",
+            color: '#FF0000',
+            width: 2,
+            dashStyle: 'dot',
+            value: parseFloat($("#EK").val()), // line at ENa
+            label: {
+                text: "EK",
+                align: "right",
+                style: {
+                    color: 'red',
+                    fontSize: '16px'
+                }
+            }
+        })
+
+    }
+</script>
+</body>
+</html>
