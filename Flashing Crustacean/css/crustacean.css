@@ -1,0 +1,68 @@
+/* 
+    Document   : hh
+    Created on : 31-Aug-2015, 3:21:51 PM
+    Author     : Aaron
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root {
+    display: block;
+}
+
+#controll_pane1 {
+    float: right;
+    width: 40%;
+    margin-left: 10px;
+}
+
+#controll_pane2 {
+    float: right;
+    width: 40%;
+    margin-left: 10px;
+}
+
+#controll_pane3 {
+    float: right;
+    width: 40%;
+    margin-left: 10px;
+}
+
+#plotting_pane {
+    float: left;
+    width: 48%
+}
+
+.slider_pane {
+    width: 150px;
+    margin-right: 15px;
+    margin-left: 25px;
+    display: inline-block;
+}
+
+svg {
+    width: 100%
+}
+
+#controlPane {
+    width: 48%;
+    float: right
+}
+
+#controlPane input:not([type=button]){
+    width: 50px;
+}
+
+.ui-spinner {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.fr {
+    display: None
+}
+
+.ui-selectmenu-button {
+    width: 150px !important;
+}
