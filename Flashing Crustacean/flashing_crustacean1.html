@@ -125,7 +125,15 @@ and open the template in the editor.
                 language = parseInt($(this).val());
                 $("." + languages[language]).css('display', 'inline');
                 $("." + languages[1 - language]).css('display', 'none');
-                updateGraph();
+
+                var graph = $('#volt_graph');
+                graph.highcharts().series[0].update({name: plotTitles.legendNames[language][0]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][0]});
+
+                graph = $('#current_graph');
+                graph.highcharts().series[0].update({name: plotTitles.legendNames[language][1]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][1]});
+
             }
         });
         makeGraph_V();
@@ -149,11 +157,11 @@ and open the template in the editor.
 
     <label for="gNa" class="en">Sodium Conductance</label>
     <label for="gNa" class="fr">Conductance de Sodium</label>
-    <input id="gNa" value="0.1" class="slider_pane"/><span>S/m^2</span><br/>
+    <input id="gNa" value="0.1" class="slider_pane"/><span>S/m<sup>2</sup></span><br/>
 
     <label for="gK" class="en">Potassium Conductance</label>
     <label for="gK" class="fr">Conductance de Potassium</label>
-    <input id="gK" class="slider_pane" value="0.2"/><span>S/m^2</span><br/>
+    <input id="gK" class="slider_pane" value="0.2"/><span>S/m<sup>2</sup></span><br/>
 
     <hr/>
     <span style="float:left;" class="en"><b>Equilibrium Potentials</b></span>
@@ -173,7 +181,7 @@ and open the template in the editor.
 
     <label for="IDC" class="en">Injected Current</label>
     <label for="IDC" class="fr">Current Injecte</label>
-    <input id="IDC" class="slider_pane" value="0"/><span>A/m^2</span><br/>
+    <input id="IDC" class="slider_pane" value="0"/><span>A/m<sup>2</sup></span><br/>
     <hr/>
     <span style="float:left;" class="en"><b>Flash Channel</b></span>
     <span style="float:left;" class="fr"><b>Channel De Flash</b></span><br/>
@@ -441,10 +449,7 @@ and open the template in the editor.
 
 
     function updateGraph() {
-        var language = parseInt($("#languageSelector").val());
-        var vg = $('#volt_graph');
-        vg.highcharts().series[0].update({name: plotTitles.legendNames[language][0]});
-        vg.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][0]});
+        var vg = $("#volt_graph");
         vg.highcharts().yAxis[0].removePlotLine("na");
         vg.highcharts().yAxis[0].addPlotLine({
             id: "na",
@@ -477,9 +482,6 @@ and open the template in the editor.
                 }
             }
         });
-        var ig = $("#current_graph");
-        ig.highcharts().series[0].update({name: plotTitles.legendNames[language][1]});
-        ig.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][1]});
     }
 </script>
 </body>
