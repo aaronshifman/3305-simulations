@@ -1,0 +1,488 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/jqueryui.css">
+    <link rel="stylesheet" href="css/crustacean.css">
+    <script src="./js/jquery.js"></script>
+    <script src="./js/jqueryui.js"></script>
+    <script src="./js/highcharts.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    var parameterRange = [];
+    parameterRange.gNa = [0, 0.5];
+    parameterRange.gK = [0, 0.5];
+    parameterRange.ENa = [0, 90];
+    parameterRange.EK = [-95, -50];
+    parameterRange.I = [-20, 30];
+    parameterRange.gFC = [0, 1];
+
+    var plotTitles = [];
+    plotTitles.legendNames = [['Membrane Voltage', 'Channel State'], ['Voltage de Membrane', 'State de Channel']];
+    plotTitles.scaleNames = [['Voltage (mV)', 'Closed/Open'], ['Le Voltage (mV)', 'Ferme/Ouvert']];
+
+    var language = 0;
+    var languages = ['en', 'fr'];
+    $(document).ready(function () {
+        var gNa = $('#gNa');
+        var gK = $("#gK");
+        var ENa = $("#ENa");
+        var EK = $("#EK");
+        var IDC = $("#IDC");
+        var gFlash = $("#gFlash");
+
+        gNa.spinner({
+            min: 0.0,
+            max: 0.5,
+            step: 0.01,
+            change: function () {
+                if (parseFloat(gNa.val()) < parameterRange.gNa[0]) {
+                    gNa.val(parameterRange.gNa[0])
+                } else if (parseFloat(gNa.val()) > parameterRange.gNa[1]) {
+                    gNa.val(parameterRange.gNa[1])
+                }
+            }
+        });
+        gK.spinner({
+            min: 0.0,
+            max: 0.5,
+            step: 0.01,
+            change: function () {
+                if (parseFloat(gK.val()) < parameterRange.gK[0]) {
+                    gK.val(parameterRange.gK[0])
+                } else if (parseFloat(gK.val()) > parameterRange.gK[1]) {
+                    gK.val(parameterRange.gK[1])
+                }
+            }
+        });
+        ENa.spinner({
+            min: 0,
+            max: 90,
+            step: 1,
+            change: function () {
+                if (parseFloat(ENa.val()) < parameterRange.ENa[0]) {
+                    ENa.val(parameterRange.ENa[0])
+                } else if (parseFloat(ENa.val()) > parameterRange.ENa[1]) {
+                    ENa.val(parameterRange.ENa[1])
+                }
+                updateGraph();
+            },
+            spin: function () {
+                updateGraph();
+            }
+        });
+        EK.spinner({
+            min: -95,
+            max: -50,
+            step: 1,
+            spin: function () {
+                updateGraph()
+            },
+            change: function () {
+                if (parseFloat(EK.val()) < parameterRange.EK[0]) {
+                    EK.val(parameterRange.EK[0])
+                } else if (parseFloat(EK.val()) > parameterRange.EK[1]) {
+                    EK.val(parameterRange.EK[1])
+                }
+                updateGraph()
+            }
+        });
+
+        IDC.spinner({
+            min: -20.0,
+            max: 30.0,
+            step: 0.1,
+            change: function () {
+                if (parseFloat(IDC.val()) < parameterRange.I[0]) {
+                    IDC.val(parameterRange.I[0])
+                } else if (parseFloat(IDC.val()) > parameterRange.I[1]) {
+                    IDC.val(parameterRange.I[1])
+                }
+            }
+        });
+        gFlash.spinner({
+            min: 0,
+            max: 1.0,
+            step: 0.05,
+            change: function () {
+                if (parseFloat(gFlash.val()) < parameterRange.gFC[0]) {
+                    gFlash.val(parameterRange.gFC[0])
+                } else if (parseFloat(gFlash.val()) > parameterRange.gFC[1]) {
+                    gFlash.val(parameterRange.gFC[1])
+                }
+            }
+        });
+
+        $(".runButton").button();
+        $("#languageSelector").selectmenu({
+            change: function () {
+                language = parseInt($(this).val());
+                $("." + languages[language]).css('display', 'inline');
+                $("." + languages[1 - language]).css('display', 'none');
+
+                var graph = $('#volt_graph');
+                graph.highcharts().series[0].update({name: plotTitles.legendNames[language][0]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][0]});
+
+                graph = $('#current_graph');
+                graph.highcharts().series[0].update({name: plotTitles.legendNames[language][1]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][1]});
+
+            }
+        });
+        makeGraph_V();
+        makeGraph_I();
+    });
+
+</script>
+<div id="plotting_pane">
+    <div id="volt_graph"></div>
+    <div id="current_graph"></div>
+    <div id="mnh_graph"></div>
+</div>
+<div id="controlPane">
+    <br/>
+    <span style="float:left;" class="en"><b>FLASHING CRUSTACEAN - Scenario 4</b></span>
+    <span style="float:left;" class="fr"><b>FLASHING CRUSTACEAN - Scenario 4 Fr</b></span><br/>
+
+    <hr/>
+    <span style="float:left;" class="en"><b>Resting Potential Properties</b></span>
+    <span style="float:left;" class="fr"><b>Properties De Resting Potential</b></span><br/>
+
+    <label for="gNa" class="en">Sodium Conductance</label>
+    <label for="gNa" class="fr">Conductance de Sodium</label>
+    <input id="gNa" value="0.1" class="slider_pane"/><span>S/m<sup>2</sup></span><br/>
+
+    <label for="gK" class="en">Potassium Conductance</label>
+    <label for="gK" class="fr">Conductance de Potassium</label>
+    <input id="gK" class="slider_pane" value="0.2"/><span>S/m<sup>2</sup></span><br/>
+
+    <hr/>
+    <span style="float:left;" class="en"><b>Equilibrium Potentials</b></span>
+    <span style="float:left;" class="fr"><b>Potentials De Equilibrium</b></span><br/>
+
+    <label for="ENa" class="en">Sodium Equilibrium Potential</label>
+    <label for="ENa" class="fr">Potential De Equilibrium De Sodium</label>
+    <input id="ENa" class="slider_pane" value="55"/><span>mV</span><br/>
+
+    <label for="EK" class="en">Potassium Equilibrium Potential</label>
+    <label for="EK" class="fr">Potential De Equilibrium de Potassium</label>
+    <input id="EK" class="slider_pane" value="-72"/><span>mV</span><br/>
+    <hr/>
+
+    <span style="float:left;" class="en"><b>DC Controls</b></span>
+    <span style="float:left;" class="fr"><b>Controls De DC</b></span><br/>
+
+    <label for="IDC" class="en">Injected Current</label>
+    <label for="IDC" class="fr">Current Injecte</label>
+    <input id="IDC" class="slider_pane" value="0"/><span>A/m<sup>2</sup></span><br/>
+    <hr/>
+    <span style="float:left;" class="en"><b>Flash Channel</b></span>
+    <span style="float:left;" class="fr"><b>Channel De Flash</b></span><br/>
+
+    <label for="gFlash" class="en">Conductance</label>
+    <label for="gFlash" class="fr">Le Conductance</label>
+    <input id="gFlash" class="slider_pane" value="0.25"/><br/>
+    <hr/>
+    <span style="float:left;" class="en"><b>Simulation Controls</b></span>
+    <span style="float:left;" class="fr"><b>Controls De Simulation</b></span><br/>
+    <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
+    <input type="button" value="Engagee" class="runButton fr" onclick="simulate()"/><br/>
+    <hr/>
+    <span style="float:left;" class="en"><b>Language</b></span>
+    <span style="float:left;" class="fr"><b>Le Language</b></span><br/>
+
+    <label for="languageSelector" class="en">Change Language</label>
+    <label for="languageSelector" class="fr">Changee Le Language</label><br/>
+    <select name="speed" id="languageSelector">
+        <option value="0" selected="selected">English</option>
+        <option value="1">Francais</option>
+    </select>
+    <hr/>
+    <span class="en">Refresh your browser to restore default values</span>
+    <span class="fr">Refreshe le browser pour restore les values default</span>
+</div>
+
+<script type="text/javascript">
+
+    function makeGraph_V(v) {
+        $('#volt_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 10,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 250
+
+            },
+            hover: false,
+            title: {
+                text: ' ' //'Neuron Dynamics'
+            },
+            xAxis: [{}],
+            yAxis: [{
+                min: -100,
+                max: 100,
+                title: {
+                    text: plotTitles.scaleNames[language][0],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                plotLines: [{
+                    id: "na",
+                    color: '#FF0000',
+                    width: 2,
+                    dashStyle: 'dot',
+                    value: parseFloat($("#ENa").val()), // line at ENa
+                    label: {
+                        text: "ENa",
+                        align: "right",
+                        style: {
+                            color: 'red',
+                            fontSize: '16px'
+                        }
+                    }
+                },
+                    {
+                        id: "k",
+                        color: '#FF0000',
+                        width: 2,
+                        dashStyle: 'dot',
+                        value: parseFloat($("#EK").val()), // line at EK
+                        label: {
+                            text: "EK",
+                            align: "right",
+                            style: {
+                                color: 'red',
+                                fontSize: '16px'
+                            }
+                        }
+                    }]
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} ms</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} mV </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: plotTitles.legendNames[language][0],
+                pointStart: 0,
+                pointInterval: 0.04,
+                data: v,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }]
+        });
+
+    }
+
+
+    function makeGraph_I(i) {
+        $('#current_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 23,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 120
+
+            },
+            hover: false,
+            title: {
+                text: ' ' //'Neuron Dynamics'
+            },
+            xAxis: [{}],
+            yAxis: [{
+                min: 0,
+                max: 1,
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: plotTitles.scaleNames[language][1],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+                //opposite: true
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} ms</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y}  </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 0
+            },
+
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: plotTitles.legendNames[language][1],
+                data: i,
+                pointStart: 0,
+                pointInterval: 0.04,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+            }]
+        });
+    }
+
+
+    function simulate() {
+        var dt = 0.01;
+        var Cm = 0.1;
+        var Iin = parseFloat($("#IDC").val());
+
+        var ENa = parseFloat($("#ENa").val());
+        var EK = parseFloat($("#EK").val());
+
+        var gNa = parseFloat($("#gNa").val());
+        var gK = parseFloat($("#gK").val());
+        var gChan = parseFloat($("#gFlash").val());
+
+        var Vrest = (Iin + gNa * ENa + gK * EK) / (gNa + gK);
+
+        var times = [];
+        var simTime = 100;
+
+        var nSteps = simTime / dt;
+
+        var V = [];
+
+        var ipi = 20;
+        var dur = 10;
+
+        var numpulse = 3;
+        var tstimon = ipi;
+        var tstimoff = tstimon + dur;
+
+        var cntpulse = 0;
+        var gFlash = [];
+        var Eflash = -55;
+        gFlash[0] = 0;
+
+        V[0] = Vrest;
+        times[0] = 0;
+        for (var i = 0; i < nSteps - 1; i++) {
+            var chan_state = 0;
+
+            times[i + 1] = (i + 1) * dt;
+
+            if (times[i + 1] > tstimon && cntpulse < numpulse) {
+                chan_state = 1;
+                if (times[i + 1] > tstimoff) {
+                    tstimon = times[i + 1] + ipi;
+                    tstimoff = tstimon + dur;
+                    cntpulse++
+                }
+            }
+
+            gFlash[i + 1] = chan_state;
+
+            var INa = gNa * (V[i] - ENa);
+            var IK = gK * (V[i] - EK);
+            var Il = gChan * gFlash[i] * (V[i] - Eflash);  //gl * (V[i] - El);
+            V[i + 1] = V[i] + dt * ((1.0 / Cm) * (Iin - (INa + IK + Il)));
+        }
+        makeGraph_V(V);
+        makeGraph_I(gFlash);
+
+    }
+
+
+    function updateGraph() {
+        var vg = $("#volt_graph");
+        vg.highcharts().yAxis[0].removePlotLine("na");
+        vg.highcharts().yAxis[0].addPlotLine({
+            id: "na",
+            color: '#FF0000',
+            width: 2,
+            dashStyle: 'dot',
+            value: parseFloat($("#ENa").val()), // line at ENa
+            label: {
+                text: "ENa",
+                align: "right",
+                style: {
+                    color: 'red',
+                    fontSize: '16px'
+                }
+            }
+        });
+        vg.highcharts().yAxis[0].removePlotLine("k");
+        vg.highcharts().yAxis[0].addPlotLine({
+            id: "k",
+            color: '#FF0000',
+            width: 2,
+            dashStyle: 'dot',
+            value: parseFloat($("#EK").val()), // line at ENa
+            label: {
+                text: "EK",
+                align: "right",
+                style: {
+                    color: 'red',
+                    fontSize: '16px'
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
