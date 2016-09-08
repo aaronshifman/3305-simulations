@@ -148,8 +148,8 @@ and open the template in the editor.
 </div>
 <div id="controlPane">
     <br/>
-    <span style="float:left;" class="en"><b>FLASHING CRUSTACEAN - Scenario 1</b></span>
-    <span style="float:left;" class="fr"><b>FLASHING CRUSTACEAN - Scenario 1 Fr</b></span><br/>
+    <span style="float:left;" class="en"><b>FLASHING CRUSTACEAN - Scenario 2</b></span>
+    <span style="float:left;" class="fr"><b>FLASHING CRUSTACEAN - Scenario 2 Fr</b></span><br/>
 
     <hr/>
     <span style="float:left;" class="en"><b>Resting Potential Properties</b></span>
@@ -398,7 +398,7 @@ and open the template in the editor.
         var gK = parseFloat($("#gK").val());
         var gChan = parseFloat($("#gFlash").val());
 
-        var VRest = (Iin + gNa * ENa + gK * EK) / (gNa + gK);
+        var Vrest = (Iin + (gChan + gNa) * ENa + gK * EK) / ((gChan + gNa) + gK);
 
         var times = [];
         var simTime = 100;
@@ -415,25 +415,26 @@ and open the template in the editor.
         var tstimoff = tstimon + dur;
 
         var cntpulse = 0;
-        var Eflash = EK;
+        var Eflash = ENa;
         var gFlash = [];
-        gFlash[0] = 0;
+        gFlash[0] = 1;
 
-        V[0] = VRest;
+        V[0] = Vrest;
         times[0] = 0;
         for (var i = 0; i < nSteps - 1; i++) {
-            var chan_state = 0; //channel closed by default
+            var chan_state = 1;   // channel open by default
 
             times[i + 1] = (i + 1) * dt;
 
             if (times[i + 1] > tstimon && cntpulse < numpulse) {
-                chan_state = 1;
+                chan_state = 0;  //channel closes during flash
                 if (times[i + 1] > tstimoff) {
                     tstimon = times[i + 1] + ipi;
                     tstimoff = tstimon + dur;
                     cntpulse++
                 }
             }
+
 
             gFlash[i + 1] = chan_state;
 
@@ -444,7 +445,6 @@ and open the template in the editor.
         }
         makeGraph_V(V);
         makeGraph_I(gFlash);
-
     }
 
 
