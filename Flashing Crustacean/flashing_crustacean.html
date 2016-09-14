@@ -24,11 +24,13 @@ and open the template in the editor.
     parameterRange.gFC = [0, 1];
 
     var plotTitles = [];
-    plotTitles.legendNames = [['Membrane Voltage', 'Channel State'], ['Voltage de Membrane', 'State de Channel']];
-    plotTitles.scaleNames = [['Voltage (mV)', 'Closed/Open'], ['Le Voltage (mV)', 'Ferme/Ouvert']];
+    plotTitles.legendNames = [['Membrane Voltage - 1', 'Channel State - 1'], ['Voltage de la Membrane - 1', 'State de Channel - 1']];
+    plotTitles.scaleNames = [['Voltage (mV)', 'Closed/Open'], ['Voltage (mV)', 'Fermé/Ouvert']];
 
     var language = 0;
     var languages = ['en', 'fr'];
+
+    var simulate;
     $(document).ready(function () {
         var gNa = $('#gNa');
         var gK = $("#gK");
@@ -36,6 +38,7 @@ and open the template in the editor.
         var EK = $("#EK");
         var IDC = $("#IDC");
         var gFlash = $("#gFlash");
+        simulate = simulate0;
 
         gNa.spinner({
             min: 0.0,
@@ -136,6 +139,20 @@ and open the template in the editor.
 
             }
         });
+        $("#crustaceanSelector").selectmenu({
+            change: function () {
+                var selectedSimulation = parseInt($(this).val());
+                var simulations = [simulate0, simulate1, simulate2, simulate3];
+                simulate = simulations[selectedSimulation];
+
+                for (var i = 0; i < 2; i++) {
+                    for (var j = 0; j < 2; j++) {
+                        plotTitles.legendNames[i][j] = plotTitles.legendNames[i][j].split(" ").slice(0, -1).join(" ") +
+                                " " + (selectedSimulation +1)
+                    }
+                }
+            }
+        });
         makeGraph_V();
         makeGraph_I();
     });
@@ -148,8 +165,8 @@ and open the template in the editor.
 </div>
 <div id="controlPane">
     <br/>
-    <span style="float:left;" class="en"><b>FLASHING CRUSTACEAN - Scenario 3</b></span>
-    <span style="float:left;" class="fr"><b>FLASHING CRUSTACEAN - Scenario 3 Fr</b></span><br/>
+    <span style="float:left;" class="en"><b>FLASHING CRUSTACEAN - Scenario 1</b></span>
+    <span style="float:left;" class="fr"><b>FLASHING CRUSTACEAN - Scenario 1 Fr</b></span><br/>
 
     <hr/>
     <span style="float:left;" class="en"><b>Resting Potential Properties</b></span>
@@ -165,48 +182,53 @@ and open the template in the editor.
 
     <hr/>
     <span style="float:left;" class="en"><b>Equilibrium Potentials</b></span>
-    <span style="float:left;" class="fr"><b>Potentials De Equilibrium</b></span><br/>
+    <span style="float:left;" class="fr"><b>Potentiels d’équilibre</b></span><br/>
 
     <label for="ENa" class="en">Sodium Equilibrium Potential</label>
-    <label for="ENa" class="fr">Potential De Equilibrium De Sodium</label>
+    <label for="ENa" class="fr">Potentiel d’équilibre du Sodium</label>
     <input id="ENa" class="slider_pane" value="55"/><span>mV</span><br/>
 
     <label for="EK" class="en">Potassium Equilibrium Potential</label>
-    <label for="EK" class="fr">Potential De Equilibrium de Potassium</label>
+    <label for="EK" class="fr">Potentiel d’équilibre du Potassium</label>
     <input id="EK" class="slider_pane" value="-72"/><span>mV</span><br/>
     <hr/>
 
     <span style="float:left;" class="en"><b>DC Controls</b></span>
-    <span style="float:left;" class="fr"><b>Controls De DC</b></span><br/>
+    <span style="float:left;" class="fr"><b>Controls de la DC</b></span><br/>
 
     <label for="IDC" class="en">Injected Current</label>
-    <label for="IDC" class="fr">Current Injecte</label>
+    <label for="IDC" class="fr">Courant Injecté</label>
     <input id="IDC" class="slider_pane" value="0"/><span>A/m<sup>2</sup></span><br/>
     <hr/>
     <span style="float:left;" class="en"><b>Flash Channel</b></span>
     <span style="float:left;" class="fr"><b>Channel De Flash</b></span><br/>
 
     <label for="gFlash" class="en">Conductance</label>
-    <label for="gFlash" class="fr">Le Conductance</label>
+    <label for="gFlash" class="fr">Conductance</label>
     <input id="gFlash" class="slider_pane" value="0.25"/><br/>
     <hr/>
     <span style="float:left;" class="en"><b>Simulation Controls</b></span>
-    <span style="float:left;" class="fr"><b>Controls De Simulation</b></span><br/>
-    <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
-    <input type="button" value="Engagee" class="runButton fr" onclick="simulate()"/><br/>
-    <hr/>
-    <span style="float:left;" class="en"><b>Language</b></span>
-    <span style="float:left;" class="fr"><b>Le Language</b></span><br/>
-
+    <span style="float:left;" class="fr"><b>Contrôles de la Simulation</b></span><br/>
+    <label for="crustaceanSelector" class="en">Pick a Crustacean</label>
+    <label for="crustaceanSelector" class="fr">Fait le Pick Du Crustacé</label><br/>
+    <select name="speed" id="crustaceanSelector">
+        <option value="0" selected="selected">1</option>
+        <option value="1">2</option>
+        <option value="2">3</option>
+        <option value="3">4</option>
+    </select><br/>
     <label for="languageSelector" class="en">Change Language</label>
-    <label for="languageSelector" class="fr">Changee Le Language</label><br/>
+    <label for="languageSelector" class="fr">Changé Le Languageé</label><br/>
     <select name="speed" id="languageSelector">
         <option value="0" selected="selected">English</option>
         <option value="1">Francais</option>
-    </select>
+    </select><br/>
+    <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
+    <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/>
+
     <hr/>
     <span class="en">Refresh your browser to restore default values</span>
-    <span class="fr">Refreshe le browser pour restore les values default</span>
+    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs les paramètres du départ</span>
 </div>
 
 <script type="text/javascript">
@@ -386,7 +408,131 @@ and open the template in the editor.
     }
 
 
-    function simulate() {
+    function simulate0() {
+        var dt = 0.01;
+        var Cm = 0.1;
+        var Iin = parseFloat($("#IDC").val());
+
+        var ENa = parseFloat($("#ENa").val());
+        var EK = parseFloat($("#EK").val());
+
+        var gNa = parseFloat($("#gNa").val());
+        var gK = parseFloat($("#gK").val());
+        var gChan = parseFloat($("#gFlash").val());
+
+        var VRest = (Iin + gNa * ENa + gK * EK) / (gNa + gK);
+
+        var times = [];
+        var simTime = 100;
+
+        var nSteps = simTime / dt;
+
+        var V = [];
+
+        var ipi = 20;
+        var dur = 10;
+
+        var numpulse = 3;
+        var tstimon = ipi;
+        var tstimoff = tstimon + dur;
+
+        var cntpulse = 0;
+        var Eflash = EK;
+        var gFlash = [];
+        gFlash[0] = 0;
+
+        V[0] = VRest;
+        times[0] = 0;
+        for (var i = 0; i < nSteps - 1; i++) {
+            var chan_state = 0; //channel closed by default
+
+            times[i + 1] = (i + 1) * dt;
+
+            if (times[i + 1] > tstimon && cntpulse < numpulse) {
+                chan_state = 1;
+                if (times[i + 1] > tstimoff) {
+                    tstimon = times[i + 1] + ipi;
+                    tstimoff = tstimon + dur;
+                    cntpulse++
+                }
+            }
+
+            gFlash[i + 1] = chan_state;
+
+            var INa = gNa * (V[i] - ENa);
+            var IK = gK * (V[i] - EK);
+            var Il = gChan * gFlash[i] * (V[i] - Eflash);
+            V[i + 1] = V[i] + dt * ((1.0 / Cm) * (Iin - (INa + IK + Il)));
+        }
+        makeGraph_V(V);
+        makeGraph_I(gFlash);
+
+    }
+
+
+    function simulate1() {
+        var dt = 0.01;
+        var Cm = 0.1;
+        var Iin = parseFloat($("#IDC").val());
+
+        var ENa = parseFloat($("#ENa").val());
+        var EK = parseFloat($("#EK").val());
+
+        var gNa = parseFloat($("#gNa").val());
+        var gK = parseFloat($("#gK").val());
+        var gChan = parseFloat($("#gFlash").val());
+
+        var Vrest = (Iin + (gChan + gNa) * ENa + gK * EK) / ((gChan + gNa) + gK);
+
+        var times = [];
+        var simTime = 100;
+
+        var nSteps = simTime / dt;
+
+        var V = [];
+
+        var ipi = 20;
+        var dur = 10;
+
+        var numpulse = 3;
+        var tstimon = ipi;
+        var tstimoff = tstimon + dur;
+
+        var cntpulse = 0;
+        var Eflash = ENa;
+        var gFlash = [];
+        gFlash[0] = 1;
+
+        V[0] = Vrest;
+        times[0] = 0;
+        for (var i = 0; i < nSteps - 1; i++) {
+            var chan_state = 1;   // channel open by default
+
+            times[i + 1] = (i + 1) * dt;
+
+            if (times[i + 1] > tstimon && cntpulse < numpulse) {
+                chan_state = 0;  //channel closes during flash
+                if (times[i + 1] > tstimoff) {
+                    tstimon = times[i + 1] + ipi;
+                    tstimoff = tstimon + dur;
+                    cntpulse++
+                }
+            }
+
+
+            gFlash[i + 1] = chan_state;
+
+            var INa = gNa * (V[i] - ENa);
+            var IK = gK * (V[i] - EK);
+            var Il = gChan * gFlash[i] * (V[i] - Eflash);
+            V[i + 1] = V[i] + dt * ((1.0 / Cm) * (Iin - (INa + IK + Il)));
+        }
+        makeGraph_V(V);
+        makeGraph_I(gFlash);
+    }
+
+
+    function simulate2() {
         var dt = 0.01;
         var Cm = 0.1;
         var Iin = parseFloat($("#IDC").val());
@@ -440,6 +586,68 @@ and open the template in the editor.
             var INa = gNa * (V[i] - ENa);
             var IK = gK * (V[i] - EK);
             var Il = gChan * gFlash[i] * (V[i] - EK) + 0.15 * gChan * gFlash[i] * (V[i] - ENa);
+            V[i + 1] = V[i] + dt * ((1.0 / Cm) * (Iin - (INa + IK + Il)));
+        }
+        makeGraph_V(V);
+        makeGraph_I(gFlash);
+
+    }
+
+
+    function simulate3() {
+        var dt = 0.01;
+        var Cm = 0.1;
+        var Iin = parseFloat($("#IDC").val());
+
+        var ENa = parseFloat($("#ENa").val());
+        var EK = parseFloat($("#EK").val());
+
+        var gNa = parseFloat($("#gNa").val());
+        var gK = parseFloat($("#gK").val());
+        var gChan = parseFloat($("#gFlash").val());
+
+        var Vrest = (Iin + gNa * ENa + gK * EK) / (gNa + gK);
+
+        var times = [];
+        var simTime = 100;
+
+        var nSteps = simTime / dt;
+
+        var V = [];
+
+        var ipi = 20;
+        var dur = 10;
+
+        var numpulse = 3;
+        var tstimon = ipi;
+        var tstimoff = tstimon + dur;
+
+        var cntpulse = 0;
+        var gFlash = [];
+        var Eflash = -55;
+        gFlash[0] = 0;
+
+        V[0] = Vrest;
+        times[0] = 0;
+        for (var i = 0; i < nSteps - 1; i++) {
+            var chan_state = 0;
+
+            times[i + 1] = (i + 1) * dt;
+
+            if (times[i + 1] > tstimon && cntpulse < numpulse) {
+                chan_state = 1;
+                if (times[i + 1] > tstimoff) {
+                    tstimon = times[i + 1] + ipi;
+                    tstimoff = tstimon + dur;
+                    cntpulse++
+                }
+            }
+
+            gFlash[i + 1] = chan_state;
+
+            var INa = gNa * (V[i] - ENa);
+            var IK = gK * (V[i] - EK);
+            var Il = gChan * gFlash[i] * (V[i] - Eflash);  //gl * (V[i] - El);
             V[i + 1] = V[i] + dt * ((1.0 / Cm) * (Iin - (INa + IK + Il)));
         }
         makeGraph_V(V);
