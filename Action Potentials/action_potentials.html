@@ -1,0 +1,750 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/jqueryui.css">
+    <link rel="stylesheet" href="css/ap.css">
+    <script src="./js/jquery.js"></script>
+    <script src="./js/jqueryui.js"></script>
+    <script src="./js/highcharts.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    var parameterRange = [];
+    parameterRange.gNa = [0, 3.5];
+    parameterRange.gK = [0, 2];
+    parameterRange.ENa = [0, 90];
+    parameterRange.EK = [-95, -50];
+    parameterRange.I = [-0.3, 0.3];
+    parameterRange.V0 = [-100, 0];
+    parameterRange.InterInter = [0, 30];
+    parameterRange.numPulse = [0, 20];
+    parameterRange.pulseLength = [0, 5];
+    parameterRange.pulseAmp = [-0.3, 0.3];
+    parameterRange.time = [10, 400];
+
+    var plotTitles = [];
+    plotTitles.legendNames = [['Membrane Voltage', 'Injected Current' ,'Na+ Activation', 'Na+ Inactivation', 'K+ Activation'], ['Voltage de la Membrane', `Courant Injecté`,'Activation Na+ ', 'Inactivation Na+ ', 'Activation K+ ']];
+    plotTitles.scaleNames = [['Voltage (mV)','Current (A/m^2)','Probability', 'tims (ms)'], ['Voltage (mV)', 'Courant (A/m^2)','Probabilité', 'temps (ms)']];
+
+    var language = 0;
+    var languages = ['en', 'fr'];
+
+    $(document).ready(function () {
+        var time = $("#time");
+        var gNa = $('#gNa');
+        var gK = $("#gK");
+        var ENa = $("#ENa");
+        var EK = $("#EK");
+        var IDC = $("#IDC");
+        var gFlash = $("#gFlash");
+        var V0 = $("#V0");
+        var InterInter = $("#InterInter");
+        var numPulse = $("#numPulse");
+        var pulseLength = $("#pulseLength");
+        var pulseAmp = $("#pulseAmp");
+
+        time.spinner({
+            min: parameterRange.time[0],
+            max: parameterRange.time[1],
+            step: 10,
+            change: function () {
+                if (parseFloat(time.val()) < parameterRange.time[0]) {
+                    time.val(parameterRange.time[0])
+                } else if (parseFloat(time.val()) > parameterRange.time[1]) {
+                    time.val(parameterRange.time[1])
+                }
+            }
+        });
+
+        V0.spinner({
+            min: parameterRange.V0[0],
+            max: parameterRange.V0[1],
+            step: 1,
+            change: function () {
+                if (parseFloat(V0.val()) < parameterRange.V0[0]) {
+                    V0.val(parameterRange.V0[0])
+                } else if (parseFloat(V0.val()) > parameterRange.V0[1]) {
+                    V0.val(parameterRange.V0[1])
+                }
+            }
+        });
+
+        gNa.spinner({
+            min: parameterRange.gNa[0],
+            max: parameterRange.gNa[1],
+            step: 0.01,
+            change: function () {
+                if (parseFloat(gNa.val()) < parameterRange.gNa[0]) {
+                    gNa.val(parameterRange.gNa[0])
+                } else if (parseFloat(gNa.val()) > parameterRange.gNa[1]) {
+                    gNa.val(parameterRange.gNa[1])
+                }
+            }
+        });
+        gK.spinner({
+            min: parameterRange.gK[0],
+            max: parameterRange.gK[1],
+            step: 0.01,
+            change: function () {
+                if (parseFloat(gK.val()) < parameterRange.gK[0]) {
+                    gK.val(parameterRange.gK[0])
+                } else if (parseFloat(gK.val()) > parameterRange.gK[1]) {
+                    gK.val(parameterRange.gK[1])
+                }
+            }
+        });
+        ENa.spinner({
+            min: 0,
+            max: 90,
+            step: 1,
+            change: function () {
+                if (parseFloat(ENa.val()) < parameterRange.ENa[0]) {
+                    ENa.val(parameterRange.ENa[0])
+                } else if (parseFloat(ENa.val()) > parameterRange.ENa[1]) {
+                    ENa.val(parameterRange.ENa[1])
+                }
+                updateGraph();
+            },
+            spin: function () {
+                updateGraph();
+            }
+        });
+        EK.spinner({
+            min: -95,
+            max: -50,
+            step: 1,
+            spin: function () {
+                updateGraph()
+            },
+            change: function () {
+                if (parseFloat(EK.val()) < parameterRange.EK[0]) {
+                    EK.val(parameterRange.EK[0])
+                } else if (parseFloat(EK.val()) > parameterRange.EK[1]) {
+                    EK.val(parameterRange.EK[1])
+                }
+                updateGraph()
+            }
+        });
+
+        IDC.spinner({
+            min: -20.0,
+            max: 30.0,
+            step: 0.1,
+            change: function () {
+                if (parseFloat(IDC.val()) < parameterRange.I[0]) {
+                    IDC.val(parameterRange.I[0])
+                } else if (parseFloat(IDC.val()) > parameterRange.I[1]) {
+                    IDC.val(parameterRange.I[1])
+                }
+            }
+        });
+
+        InterInter.spinner({
+            min: parameterRange.InterInter[0],
+            max: parameterRange.InterInter[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(InterInter.val()) < parameterRange.InterInter[0]) {
+                    InterInter.val(parameterRange.InterInter[0])
+                } else if (parseFloat(InterInter.val()) > parameterRange.InterInter[1]) {
+                    InterInter.val(parameterRange.InterInter[1])
+                }
+            }
+        });
+
+        numPulse.spinner({
+            min: parameterRange.numPulse[0],
+            max: parameterRange.numPulse[1],
+            step: 1,
+            change: function () {
+                var target = parseInt(numPulse.val())
+                numPulse.val(target)
+                if (parseFloat(numPulse.val()) < parameterRange.numPulse[0]) {
+                    numPulse.val(parameterRange.numPulse[0])
+                } else if (parseFloat(numPulse.val()) > parameterRange.numPulse[1]) {
+                    numPulse.val(parameterRange.numPulse[1])
+                }
+            }
+        });
+
+        pulseLength.spinner({
+            min: parameterRange.pulseLength[0],
+            max: parameterRange.pulseLength[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(pulseLength.val()) < parameterRange.pulseLength[0]) {
+                    pulseLength.val(parameterRange.pulseLength[0])
+                } else if (parseFloat(pulseLength.val()) > parameterRange.pulseLength[1]) {
+                    pulseLength.val(parameterRange.pulseLength[1])
+                }
+            }
+        });
+
+        pulseAmp.spinner({
+            min: parameterRange.pulseAmp[0],
+            max: parameterRange.pulseAmp[1],
+            step: 0.05,
+            change: function () {
+                if (parseFloat(pulseAmp.val()) < parameterRange.pulseAmp[0]) {
+                    pulseAmp.val(parameterRange.pulseAmp[0])
+                } else if (parseFloat(pulseAmp.val()) > parameterRange.pulseAmp[1]) {
+                    pulseAmp.val(parameterRange.pulseAmp[1])
+                }
+            }
+        });
+
+        gFlash.spinner({
+            min: 0,
+            max: 1.0,
+            step: 0.05,
+            change: function () {
+                if (parseFloat(gFlash.val()) < parameterRange.gFC[0]) {
+                    gFlash.val(parameterRange.gFC[0])
+                } else if (parseFloat(gFlash.val()) > parameterRange.gFC[1]) {
+                    gFlash.val(parameterRange.gFC[1])
+                }
+            }
+        });
+
+        $(".runButton").button();
+        $("#languageSelector").selectmenu({
+            change: function () {
+                language = parseInt($(this).val());
+                $("." + languages[language]).css('display', 'inline');
+                $("." + languages[1 - language]).css('display', 'none');
+
+                var graph = $('#volt_graph');
+                graph.highcharts().series[0].update({name: plotTitles.legendNames[language][0]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][0]});
+
+                graph = $('#current_graph');
+                graph.highcharts().series[0].update({name: plotTitles.legendNames[language][1]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][1]});
+
+                graph = $('#mnh_graph');
+                graph.highcharts().series[0].update({name: plotTitles.legendNames[language][2]});
+                graph.highcharts().series[1].update({name: plotTitles.legendNames[language][3]});
+                graph.highcharts().series[2].update({name: plotTitles.legendNames[language][4]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][2]});
+                graph.highcharts().xAxis[0].setTitle({text: plotTitles.scaleNames[language][3]});
+
+            }
+        });
+        makeGraph_V();
+        makeGraph_I();
+        makeGraph_mnh();
+    });
+
+</script>
+<div id="plotting_pane">
+    <div id="volt_graph"></div>
+    <div id="current_graph"></div>
+    <div id="mnh_graph"></div>
+</div>
+<div id="controlPane">
+    <br/>
+    <span style="float:left;" class="en"><b>Action Potentials</b></span>
+    <span style="float:left;" class="fr"><b>Potentials de Action</b></span><br/>
+
+    <hr/>
+    <span style="float:left;" class="en"><b>Neuron Properties</b></span>
+    <span style="float:left;" class="fr"><b>Propriétés du Neurone</b></span><br/>
+
+    <label for="gNa" class="en">Maximal Sodium Conductance</label>
+    <label for="gNa" class="fr">Conductance Maximale du Sodium</label>
+    <input id="gNa" value="1.2" class="slider_pane"/><span>S/m<sup>2</sup></span><br/>
+
+    <label for="gK" class="en">Maximal Potassium Conductance</label>
+    <label for="gK" class="fr">Conductance maximale du potassium</label>
+    <input id="gK" class="slider_pane" value="0.36"/><span>S/m<sup>2</sup></span><br/>
+
+    <label for="V0" class="en">Initial Membrane Potential</label>
+    <label for="V0" class="fr">Potentiel Membranaire Initiale</label>
+    <input id="V0" class="slider_pane" value="-60"/><span>mV</span><br/>
+
+    <hr/>
+    <span style="float:left;" class="en"><b>Equilibrium Potentials</b></span>
+    <span style="float:left;" class="fr"><b>Potentiels d’équilibre</b></span><br/>
+
+    <label for="ENa" class="en">Sodium Equilibrium Potential</label>
+    <label for="ENa" class="fr">Potentiel d’équilibre du Sodium</label>
+    <input id="ENa" class="slider_pane" value="55"/><span>mV</span><br/>
+
+    <label for="EK" class="en">Potassium Equilibrium Potential</label>
+    <label for="EK" class="fr">Potentiel d’équilibre du Potassium</label>
+    <input id="EK" class="slider_pane" value="-72"/><span>mV</span><br/>
+    <hr/>
+
+    <span style="float:left;" class="en"><b>Stimulus Controls</b></span>
+    <span style="float:left;" class="fr"><b>Paramètres du Contrôle des Stimulus</b></span><br/>
+
+    <label for="IDC" class="en">Injected Current</label>
+    <label for="IDC" class="fr">Courant Injecté</label>
+    <input id="IDC" class="slider_pane" value="0"/><span>A/m<sup>2</sup></span><br/>
+
+    <label for="InterInter" class="en">Interpulse Interval</label>
+    <label for="InterInter" class="fr">Intervalle Entre les Stimulus</label>
+    <input id="InterInter" class="slider_pane" value="10"/><span>ms</span><br/>
+
+    <label for="numPulse" class="en">Pulse Number</label>
+    <label for="numPulse" class="fr">Nombre de stimulus</label>
+    <input id="numPulse" class="slider_pane" value="1"/><span></span><br/>
+
+    <label for="pulseLength" class="en">Pulse Duration</label>
+    <label for="pulseLength" class="fr">Durée des stimulus</label>
+    <input id="pulseLength" class="slider_pane" value="1"/><span>ms</span><br/>
+
+    <label for="pulseAmp" class="en">Pulse Amplitude</label>
+    <label for="pulseAmp" class="fr">Amplitude des stimulus</label>
+    <input id="pulseAmp" class="slider_pane" value="0"/><span>A/m<sup>2</sup></sup></span><br/>
+    <hr/>
+
+    <span style="float:left;" class="en"><b>Simulation Controls</b></span>
+    <span style="float:left;" class="fr"><b>Contrôles de la Simulation</b></span><br/>
+    <label for="languageSelector" class="en">Change Language</label>
+    <label for="languageSelector" class="fr">Changé Le Languageé</label><br/>
+    <select name="speed" id="languageSelector">
+        <option value="0" selected="selected">English</option>
+        <option value="1">Francais</option>
+    </select><br/>
+    <label for="time" class="en">Duration</label>
+    <label for="time" class="fr">Durée</label>
+    <input id="time" class="slider_pane" value="50"/><span>ms</span><br/>
+
+    <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
+    <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/>
+
+    <hr/>
+    <span class="en">Refresh your browser to restore default values</span>
+    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs les paramètres du départ</span>
+</div>
+
+<script type="text/javascript">
+
+    function makeGraph_V(v) {
+        $('#volt_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 10,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 250
+
+            },
+            hover: false,
+            title: {
+                text: ' ' //'Neuron Dynamics'
+            },
+            xAxis: [{
+            }],
+            yAxis: [{
+                min: -100,
+                max: 100,
+                title: {
+                    text: plotTitles.scaleNames[language][0],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                plotLines: [{
+                    id: "na",
+                    color: '#FF0000',
+                    width: 2,
+                    dashStyle: 'dot',
+                    value: parseFloat($("#ENa").val()), // line at ENa
+                    label: {
+                        text: "ENa",
+                        align: "right",
+                        style: {
+                            color: 'red',
+                            fontSize: '16px'
+                        }
+                    }
+                },
+                    {
+                        id: "k",
+                        color: '#FF0000',
+                        width: 2,
+                        dashStyle: 'dot',
+                        value: parseFloat($("#EK").val()), // line at EK
+                        label: {
+                            text: "EK",
+                            align: "right",
+                            style: {
+                                color: 'red',
+                                fontSize: '16px'
+                            }
+                        }
+                    }],
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} ms</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} mV </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                floating: true,
+                //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            series: [{
+                name: plotTitles.legendNames[language][0],
+                pointStart: 0,
+                pointInterval: 0.04,
+                data: v,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }]
+        });
+
+    }
+
+
+    function makeGraph_I(i) {
+        $('#current_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 23,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 150
+
+            },
+            hover: false,
+            title: {
+                text: ' ' //'Neuron Dynamics'
+            },
+            xAxis: [{
+            }],
+            yAxis: [{
+                min: -0.9,
+                max: 0.9,
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: plotTitles.scaleNames[language][1],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                //opposite: true
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} ms</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} A/m^2 </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                floating: true,
+                //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            series: [{
+                name: plotTitles.legendNames[language][1],
+                data: i,
+                pointStart: 0,
+                pointInterval: 0.04,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+            }]
+        });
+    }
+
+
+    function makeGraph_mnh(m, n, h) {
+        $('#mnh_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 20,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 200
+
+            },
+            hover: true,
+            title: {
+                text: ' ' //'gating variables'
+            },
+            xAxis: [{
+                title: {
+                    text: plotTitles.scaleNames[language][3],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }],
+            yAxis: [{
+                min: 0.0,
+                max: 1.0,
+                title: {
+                    text: plotTitles.scaleNames[language][2],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} ms</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                x: 0,
+                verticalAlign: 'top',
+                y: 0,
+                floating: true,
+                //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            series: [{
+                name: plotTitles.legendNames[language][2],
+                data: m,
+                pointStart: 0,
+                pointInterval: 0.04,
+                color: '#00FF00',
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }, {
+                name: plotTitles.legendNames[language][3],
+                data: h,
+                pointStart: 0,
+                pointInterval: 0.04,
+                color: '#FF0000',
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }, {
+                name: plotTitles.legendNames[language][4],
+                data: n,
+                pointStart: 0,
+                pointInterval: 0.04,
+                color: '#0000FF',
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }]
+        });
+    }
+
+    function simulate() {
+        var dt = 0.04;
+        var Cm = 0.01;
+        var Iin = parseFloat($("#IDC").val());
+        var ENa = parseFloat($("#ENa").val());
+        var EK = parseFloat($("#EK").val());
+        var El = -50;
+        var gbarNa = parseFloat($("#gNa").val());
+        var gbarK = parseFloat($("#gK").val());
+        var gbarl = 0.003 ;
+        var Vrest = parseFloat($("#V0").val());
+        var simTime =  parseFloat($("#time").val());
+        var ipi =  parseFloat($("#InterInter").val());
+        var dur = parseFloat($("#pulseLength").val());
+        var pulseI = parseFloat($("#pulseAmp").val());
+        var numpulse = parseFloat($("#numPulse").val());
+        var iRand = 0 ;
+        var nSteps = simTime / dt;
+        var period = ipi;   //1000 / freq
+        var V = [];
+        var m = [];
+        var n = [];
+        var h = [];
+        var I = [];
+        var times = [];
+        var tstimon = 10
+        var tstimoff = tstimon + dur
+        var cntpulse = 0
+
+        V[0] = Vrest;
+        m[0] = am(V[0]) / (am(V[0]) + bm(V[0]));
+        n[0] = an(V[0]) / (an(V[0]) + bn(V[0]));
+        h[0] = ah(V[0]) / (ah(V[0]) + bh(V[0]));
+        I[0] = Iin;
+        times[0] = 0;
+        for (var i = 0; i < nSteps - 1; i++) {
+            var Iapp = Iin
+            var randTerm = Math.random() * iRand * Iin * (Math.random() < 0.5 ? -1 : 1)
+            Iapp += randTerm;
+            times[i + 1] = (i + 1) * dt;
+            //var relTime = times[i + 1] % period;
+            //if (relTime > period * dutyCycle / 100)
+            //    Iapp += pulseI
+            if (times[i + 1] > tstimon && cntpulse < numpulse) {
+                Iapp += pulseI
+                if (times[i + 1] > tstimoff) {
+                    tstimon = times[i + 1] + ipi
+                    tstimoff = tstimon + dur
+                    cntpulse++
+                }
+            }
+
+            m[i + 1] = m[i] + dt * ((am(V[i]) * (1 - m[i])) - (bm(V[i]) * m[i]));
+            n[i + 1] = n[i] + dt * ((an(V[i]) * (1 - n[i])) - (bn(V[i]) * n[i]));
+            h[i + 1] = h[i] + dt * ((ah(V[i]) * (1 - h[i])) - (bh(V[i]) * h[i]));
+            I[i + 1] = Iapp;
+
+            var gNa = gbarNa * Math.pow(m[i], 3) * h[i];
+            var gK = gbarK * Math.pow(n[i], 4);
+            var gl = gbarl;
+            var INa = gNa * (V[i] - ENa);
+            var IK = gK * (V[i] - EK);
+            var Il = gl * (V[i] - El);
+            V[i + 1] = V[i] + dt * ((1.0 / Cm) * (Iapp - (INa + IK + Il)));
+        }
+        makeGraph_V(V);
+        makeGraph_I(I);
+        makeGraph_mnh(m, n, h)
+        v_data = V
+        c_data = I
+        m_data = m
+        n_data = n
+        h_data = h
+
+    }
+    function  am(v) {
+        return 0.1 * (v + 35.0) / (1.0 - Math.exp(-(v + 35.0) / 10.0));
+    }
+
+    function  bm(v) {
+        return 4.0 * Math.exp(-0.0556 * (v + 60.0));
+    }
+
+    function  an(v) {
+        return 0.01 * (v + 50.0) / (1.0 - Math.exp(-(v + 50.0) / 10.0));
+    }
+
+    function  bn(v) {
+        return 0.125 * Math.exp(-(v + 60.0) / 80.0);
+    }
+
+    function  ah(v) {
+        return 0.07 * Math.exp(-0.05 * (v + 60.0));
+    }
+
+    function  bh(v) {
+        return 1.0 / (1.0 + Math.exp(-(0.1) * (v + 30.0)));
+    }
+
+    function updateGraph() {
+        $('#volt_graph').highcharts().yAxis[0].removePlotLine("na")
+        $('#volt_graph').highcharts().yAxis[0].addPlotLine({
+            id: "na",
+            color: '#FF0000',
+            width: 2,
+            dashStyle: 'dot',
+            value: parseFloat($("#ENa").val()), // line at ENa
+            label: {
+                text: "ENa",
+                align: "right",
+                style: {
+                    color: 'red',
+                    fontSize: '16px'
+                }
+            }
+        })
+        $('#volt_graph').highcharts().yAxis[0].removePlotLine("k")
+        $('#volt_graph').highcharts().yAxis[0].addPlotLine({
+            id: "k",
+            color: '#FF0000',
+            width: 2,
+            dashStyle: 'dot',
+            value: parseFloat($("#EK").val()), // line at ENa
+            label: {
+                text: "EK",
+                align: "right",
+                style: {
+                    color: 'red',
+                    fontSize: '16px'
+                }
+            }
+        })
+
+    }
+</script>
+</body>
+</html>
