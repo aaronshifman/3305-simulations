@@ -1,6 +1,5 @@
 <!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
+ Action potential simulator:  John E Lewis & Aaron R Shifman, University of Ottawa
 -->
 <!DOCTYPE html>
 <html>
@@ -29,8 +28,8 @@ and open the template in the editor.
     parameterRange.time = [10, 400];
 
     var plotTitles = [];
-    plotTitles.legendNames = [['Membrane Voltage', 'Injected Current' ,'Na+ Activation', 'Na+ Inactivation', 'K+ Activation'], ['Voltage de la Membrane', `Courant Injecté`,'Activation Na+ ', 'Inactivation Na+ ', 'Activation K+ ']];
-    plotTitles.scaleNames = [['Voltage (mV)','Current (A/m^2)','Probability', 'tims (ms)'], ['Voltage (mV)', 'Courant (A/m^2)','Probabilité', 'temps (ms)']];
+    plotTitles.legendNames = [['Membrane Voltage', 'Injected Current', 'Na+ Activation', 'Na+ Inactivation', 'K+ Activation'], ['Voltage de la Membrane', 'Courant Injecté', 'Activation Na+ ', 'Inactivation Na+ ', 'Activation K+ ']];
+    plotTitles.scaleNames = [['Voltage (mV)', 'Current (A/m^2)', 'Probability', 'time (ms)'], ['Voltage (mV)', 'Courant (A/m^2)', 'Probabilité', 'temps (ms)']];
 
     var language = 0;
     var languages = ['en', 'fr'];
@@ -42,7 +41,6 @@ and open the template in the editor.
         var ENa = $("#ENa");
         var EK = $("#EK");
         var IDC = $("#IDC");
-        var gFlash = $("#gFlash");
         var V0 = $("#V0");
         var InterInter = $("#InterInter");
         var numPulse = $("#numPulse");
@@ -91,6 +89,7 @@ and open the template in the editor.
             min: parameterRange.gK[0],
             max: parameterRange.gK[1],
             step: 0.01,
+            suffix: "S/m^2",
             change: function () {
                 if (parseFloat(gK.val()) < parameterRange.gK[0]) {
                     gK.val(parameterRange.gK[0])
@@ -100,8 +99,8 @@ and open the template in the editor.
             }
         });
         ENa.spinner({
-            min: 0,
-            max: 90,
+            min: parameterRange.ENa[0],
+            max: parameterRange.ENa[1],
             step: 1,
             change: function () {
                 if (parseFloat(ENa.val()) < parameterRange.ENa[0]) {
@@ -116,8 +115,8 @@ and open the template in the editor.
             }
         });
         EK.spinner({
-            min: -95,
-            max: -50,
+            min: parameterRange.EK[0],
+            max: parameterRange.EK[1],
             step: 1,
             spin: function () {
                 updateGraph()
@@ -163,8 +162,8 @@ and open the template in the editor.
             max: parameterRange.numPulse[1],
             step: 1,
             change: function () {
-                var target = parseInt(numPulse.val())
-                numPulse.val(target)
+                var target = parseInt(numPulse.val());
+                numPulse.val(target);
                 if (parseFloat(numPulse.val()) < parameterRange.numPulse[0]) {
                     numPulse.val(parameterRange.numPulse[0])
                 } else if (parseFloat(numPulse.val()) > parameterRange.numPulse[1]) {
@@ -195,19 +194,6 @@ and open the template in the editor.
                     pulseAmp.val(parameterRange.pulseAmp[0])
                 } else if (parseFloat(pulseAmp.val()) > parameterRange.pulseAmp[1]) {
                     pulseAmp.val(parameterRange.pulseAmp[1])
-                }
-            }
-        });
-
-        gFlash.spinner({
-            min: 0,
-            max: 1.0,
-            step: 0.05,
-            change: function () {
-                if (parseFloat(gFlash.val()) < parameterRange.gFC[0]) {
-                    gFlash.val(parameterRange.gFC[0])
-                } else if (parseFloat(gFlash.val()) > parameterRange.gFC[1]) {
-                    gFlash.val(parameterRange.gFC[1])
                 }
             }
         });
@@ -253,76 +239,93 @@ and open the template in the editor.
     <span style="float:left;" class="fr"><b>Potentials de Action</b></span><br/>
 
     <hr/>
-    <span style="float:left;" class="en"><b>Neuron Properties</b></span>
-    <span style="float:left;" class="fr"><b>Propriétés du Neurone</b></span><br/>
+    <!--    <span style="float:left;" class="en"><b>Neuron Properties</b></span>
+       <span style="float:left;" class="fr"><b>Propriétés du Neurone</b></span><br/> -->
 
-    <label for="gNa" class="en">Maximal Sodium Conductance</label>
+    <label for="gNa" class="en">Maximum Sodium Conductance</label>
     <label for="gNa" class="fr">Conductance Maximale du Sodium</label>
-    <input id="gNa" value="1.2" class="slider_pane"/><span>S/m<sup>2</sup></span><br/>
-
-    <label for="gK" class="en">Maximal Potassium Conductance</label>
+    <div class="suffix conductivity_spinner">
+        <input id="gNa" value="1.2" class="slider_pane"/><br/>
+    </div>
+    <label for="gK" class="en">Maximum Potassium Conductance</label>
     <label for="gK" class="fr">Conductance maximale du potassium</label>
-    <input id="gK" class="slider_pane" value="0.36"/><span>S/m<sup>2</sup></span><br/>
-
-    <label for="V0" class="en">Initial Membrane Potential</label>
-    <label for="V0" class="fr">Potentiel Membranaire Initiale</label>
-    <input id="V0" class="slider_pane" value="-60"/><span>mV</span><br/>
-
-    <hr/>
-    <span style="float:left;" class="en"><b>Equilibrium Potentials</b></span>
-    <span style="float:left;" class="fr"><b>Potentiels d’équilibre</b></span><br/>
+    <div class="suffix conductivity_spinner">
+        <input id="gK" class="slider_pane" value="0.36"/><br/>
+    </div>
+    <!--   <hr/>
+      <span style="float:left;" class="en"><b>Equilibrium Potentials</b></span>
+      <span style="float:left;" class="fr"><b>Potentiels d’équilibre</b></span><br/> -->
 
     <label for="ENa" class="en">Sodium Equilibrium Potential</label>
     <label for="ENa" class="fr">Potentiel d’équilibre du Sodium</label>
-    <input id="ENa" class="slider_pane" value="55"/><span>mV</span><br/>
-
+    <div class="suffix equilibrium_spinner">
+        <input id="ENa" class="slider_pane" value="55"/><br/>
+    </div>
     <label for="EK" class="en">Potassium Equilibrium Potential</label>
     <label for="EK" class="fr">Potentiel d’équilibre du Potassium</label>
-    <input id="EK" class="slider_pane" value="-72"/><span>mV</span><br/>
+
+    <div class="suffix equilibrium_spinner">
+        <input id="EK" class="slider_pane" value="-72"/><br/>
+    </div>
     <hr/>
 
-    <span style="float:left;" class="en"><b>Stimulus Controls</b></span>
-    <span style="float:left;" class="fr"><b>Paramètres du Contrôle des Stimulus</b></span><br/>
+    <span style="float:left;" class="en"><b>Stimulation parameters</b></span>
+    <span style="float:left;" class="fr"><b>Paramètres du stimulation</b></span><br/>
 
-    <label for="IDC" class="en">Injected Current</label>
+    <label for="IDC" class="en">Constant Injected Current</label>
     <label for="IDC" class="fr">Courant Injecté</label>
-    <input id="IDC" class="slider_pane" value="0"/><span>A/m<sup>2</sup></span><br/>
-
-    <label for="InterInter" class="en">Interpulse Interval</label>
-    <label for="InterInter" class="fr">Intervalle Entre les Stimulus</label>
-    <input id="InterInter" class="slider_pane" value="10"/><span>ms</span><br/>
+    <div class="suffix current_spinner">
+        <input id="IDC" class="slider_pane" value="0"/><br/>
+    </div>
 
     <label for="numPulse" class="en">Pulse Number</label>
     <label for="numPulse" class="fr">Nombre de stimulus</label>
-    <input id="numPulse" class="slider_pane" value="1"/><span></span><br/>
+    <input id="numPulse" class="slider_pane" value="1"/><br/>
 
+    <label for="InterInter" class="en">Interpulse Interval</label>
+    <label for="InterInter" class="fr">Intervalle Entre les Stimulus</label>
+    <div class="suffix time_spinner">
+        <input id="InterInter" class="slider_pane" value="10"/><br/>
+    </div>
     <label for="pulseLength" class="en">Pulse Duration</label>
     <label for="pulseLength" class="fr">Durée des stimulus</label>
-    <input id="pulseLength" class="slider_pane" value="1"/><span>ms</span><br/>
+    <div class="suffix time_spinner">
+        <input id="pulseLength" class="slider_pane" value="1"/><br/>
+    </div>
 
     <label for="pulseAmp" class="en">Pulse Amplitude</label>
     <label for="pulseAmp" class="fr">Amplitude des stimulus</label>
-    <input id="pulseAmp" class="slider_pane" value="0"/><span>A/m<sup>2</sup></sup></span><br/>
+    <div class="suffix current_spinner">
+        <input id="pulseAmp" class="slider_pane" value="0"/><br/>
+    </div>
+    <label for="V0" class="en">Initial Membrane Potential</label>
+    <label for="V0" class="fr">Potentiel Membranaire Initiale</label>
+    <div class="equilibrium_spinner">
+        <input id="V0" class="slider_pane" value="-60"/><br/>
+    </div>
     <hr/>
 
-    <span style="float:left;" class="en"><b>Simulation Controls</b></span>
-    <span style="float:left;" class="fr"><b>Contrôles de la Simulation</b></span><br/>
-    <label for="languageSelector" class="en">Change Language</label>
-    <label for="languageSelector" class="fr">Changé Le Languageé</label><br/>
-    <select name="speed" id="languageSelector">
-        <option value="0" selected="selected">English</option>
-        <option value="1">Francais</option>
-    </select><br/>
     <label for="time" class="en">Duration</label>
     <label for="time" class="fr">Durée</label>
-    <input id="time" class="slider_pane" value="50"/><span>ms</span><br/>
 
+    <div class="suffix time_spinner">
+        <input id="time" class="slider_pane" value="50"/>
+    </div>
     <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
-    <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/>
+    <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/><br/>
 
-    <hr/>
     <span class="en">Refresh your browser to restore default values</span>
     <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs les paramètres du départ</span>
+
+    <hr/>
+    <br/>
+
+    <select name="speed" id="languageSelector" title="language_selector">
+        <option value="0" selected>English</option>
+        <option value="1">Francais</option>
+    </select><br/>
+    <br/><br/><br/>
+
 </div>
 
 <script type="text/javascript">
@@ -331,21 +334,20 @@ and open the template in the editor.
         $('#volt_graph').highcharts({
             chart: {
                 // Edit chart spacing
-                spacingBottom: 15,
-                spacingTop: 20,
+                spacingBottom: 20,
+                spacingTop: 40,
                 spacingLeft: 10,
                 spacingRight: 10,
                 // Explicitly tell the width and height of a chart
                 width: null,
-                height: 250
+                height: 270
 
             },
             hover: false,
             title: {
-                text: ' ' //'Neuron Dynamics'
+                text: ' '
             },
-            xAxis: [{
-            }],
+            xAxis: [{}],
             yAxis: [{
                 min: -100,
                 max: 100,
@@ -389,7 +391,7 @@ and open the template in the editor.
                                 fontSize: '16px'
                             }
                         }
-                    }],
+                    }]
             }],
             tooltip: {
                 //enabled: true
@@ -407,8 +409,8 @@ and open the template in the editor.
                 align: 'right',
                 x: 0,
                 verticalAlign: 'top',
-                y: 0,
-                floating: true,
+                y: -25,
+                floating: true
                 //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
             },
             series: [{
@@ -435,21 +437,20 @@ and open the template in the editor.
         $('#current_graph').highcharts({
             chart: {
                 // Edit chart spacing
-                spacingBottom: 15,
-                spacingTop: 20,
+                spacingBottom: 25,
+                spacingTop: 30,
                 spacingLeft: 23,
                 spacingRight: 10,
                 // Explicitly tell the width and height of a chart
                 width: null,
-                height: 150
+                height: 140
 
             },
             hover: false,
             title: {
-                text: ' ' //'Neuron Dynamics'
+                text: ' '
             },
-            xAxis: [{
-            }],
+            xAxis: [{}],
             yAxis: [{
                 min: -0.9,
                 max: 0.9,
@@ -463,8 +464,7 @@ and open the template in the editor.
                     style: {
                         color: Highcharts.getOptions().colors[0]
                     }
-                },
-                //opposite: true
+                }
             }],
             tooltip: {
                 //enabled: true
@@ -481,9 +481,8 @@ and open the template in the editor.
                 align: 'right',
                 x: 0,
                 verticalAlign: 'top',
-                y: 0,
-                floating: true,
-                //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+                y: -25,
+                floating: true
             },
             series: [{
                 name: plotTitles.legendNames[language][1],
@@ -508,7 +507,7 @@ and open the template in the editor.
             chart: {
                 // Edit chart spacing
                 spacingBottom: 15,
-                spacingTop: 20,
+                spacingTop: 30,
                 spacingLeft: 20,
                 spacingRight: 10,
                 // Explicitly tell the width and height of a chart
@@ -558,9 +557,8 @@ and open the template in the editor.
                 align: 'right',
                 x: 0,
                 verticalAlign: 'top',
-                y: 0,
-                floating: true,
-                //backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+                y: -20,
+                floating: true
             },
             series: [{
                 name: plotTitles.legendNames[language][2],
@@ -620,25 +618,24 @@ and open the template in the editor.
         var El = -50;
         var gbarNa = parseFloat($("#gNa").val());
         var gbarK = parseFloat($("#gK").val());
-        var gbarl = 0.003 ;
+        var gbarl = 0.003;
         var Vrest = parseFloat($("#V0").val());
-        var simTime =  parseFloat($("#time").val());
-        var ipi =  parseFloat($("#InterInter").val());
+        var simTime = parseFloat($("#time").val());
+        var ipi = parseFloat($("#InterInter").val());
         var dur = parseFloat($("#pulseLength").val());
         var pulseI = parseFloat($("#pulseAmp").val());
         var numpulse = parseFloat($("#numPulse").val());
-        var iRand = 0 ;
+        var iRand = 0;
         var nSteps = simTime / dt;
-        var period = ipi;   //1000 / freq
         var V = [];
         var m = [];
         var n = [];
         var h = [];
         var I = [];
         var times = [];
-        var tstimon = 10
-        var tstimoff = tstimon + dur
-        var cntpulse = 0
+        var tstimon = 10;
+        var tstimoff = tstimon + dur;
+        var cntpulse = 0;
 
         V[0] = Vrest;
         m[0] = am(V[0]) / (am(V[0]) + bm(V[0]));
@@ -647,18 +644,17 @@ and open the template in the editor.
         I[0] = Iin;
         times[0] = 0;
         for (var i = 0; i < nSteps - 1; i++) {
-            var Iapp = Iin
-            var randTerm = Math.random() * iRand * Iin * (Math.random() < 0.5 ? -1 : 1)
-            Iapp += randTerm;
+            var Iapp = Iin;
+            Iapp += Math.random() * iRand * Iin * (Math.random() < 0.5 ? -1 : 1);
             times[i + 1] = (i + 1) * dt;
             //var relTime = times[i + 1] % period;
             //if (relTime > period * dutyCycle / 100)
             //    Iapp += pulseI
             if (times[i + 1] > tstimon && cntpulse < numpulse) {
-                Iapp += pulseI
+                Iapp += pulseI;
                 if (times[i + 1] > tstimoff) {
-                    tstimon = times[i + 1] + ipi
-                    tstimoff = tstimon + dur
+                    tstimon = times[i + 1] + ipi;
+                    tstimoff = tstimon + dur;
                     cntpulse++
                 }
             }
@@ -678,41 +674,39 @@ and open the template in the editor.
         }
         makeGraph_V(V);
         makeGraph_I(I);
-        makeGraph_mnh(m, n, h)
-        v_data = V
-        c_data = I
-        m_data = m
-        n_data = n
-        h_data = h
+        makeGraph_mnh(m, n, h);
 
     }
-    function  am(v) {
+
+    function am(v) {
         return 0.1 * (v + 35.0) / (1.0 - Math.exp(-(v + 35.0) / 10.0));
     }
 
-    function  bm(v) {
+    function bm(v) {
         return 4.0 * Math.exp(-0.0556 * (v + 60.0));
     }
 
-    function  an(v) {
+    function an(v) {
         return 0.01 * (v + 50.0) / (1.0 - Math.exp(-(v + 50.0) / 10.0));
     }
 
-    function  bn(v) {
+    function bn(v) {
         return 0.125 * Math.exp(-(v + 60.0) / 80.0);
     }
 
-    function  ah(v) {
+    function ah(v) {
         return 0.07 * Math.exp(-0.05 * (v + 60.0));
     }
 
-    function  bh(v) {
+    function bh(v) {
         return 1.0 / (1.0 + Math.exp(-(0.1) * (v + 30.0)));
     }
 
     function updateGraph() {
-        $('#volt_graph').highcharts().yAxis[0].removePlotLine("na")
-        $('#volt_graph').highcharts().yAxis[0].addPlotLine({
+        var volt_graph = $('#volt_graph');
+
+        volt_graph.highcharts().yAxis[0].removePlotLine("na");
+        volt_graph.highcharts().yAxis[0].addPlotLine({
             id: "na",
             color: '#FF0000',
             width: 2,
@@ -726,9 +720,10 @@ and open the template in the editor.
                     fontSize: '16px'
                 }
             }
-        })
-        $('#volt_graph').highcharts().yAxis[0].removePlotLine("k")
-        $('#volt_graph').highcharts().yAxis[0].addPlotLine({
+        });
+
+        volt_graph.highcharts().yAxis[0].removePlotLine("k");
+        volt_graph.highcharts().yAxis[0].addPlotLine({
             id: "k",
             color: '#FF0000',
             width: 2,
@@ -742,8 +737,7 @@ and open the template in the editor.
                     fontSize: '16px'
                 }
             }
-        })
-
+        });
     }
 </script>
 </body>

@@ -34,6 +34,7 @@
     margin-right: 15px;
     margin-left: 25px;
     display: inline-block;
+    height: 15px
 }
 
 svg {
@@ -45,8 +46,8 @@ svg {
     float: right
 }
 
-#controlPane input:not([type=button]){
-    width: 50px;
+#controlPane input:not([type=button]) {
+    width: 150px;
 }
 
 .ui-spinner {
@@ -61,4 +62,49 @@ svg {
 
 .ui-selectmenu-button {
     width: 150px !important;
+    margin-left: 200px;
+}
+
+.body {
+    font-family: Verdana;
+}
+
+.conductivity_spinner .ui-spinner:before {
+    content: "S/m\00B2";
+    width: 100px;
+    padding-top: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.equilibrium_spinner .ui-spinner:before {
+    content: "mV";
+    width: 100px;
+    padding-top: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.time_spinner .ui-spinner:before {
+    content: "ms";
+    width: 100px;
+    padding-top: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.current_spinner .ui-spinner:before {
+    content: "A/m\00B2";
+    width: 100px;
+    padding-top: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.suffix {
+    display: inline;
 }

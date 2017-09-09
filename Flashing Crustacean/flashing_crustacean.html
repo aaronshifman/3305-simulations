@@ -1,6 +1,5 @@
 <!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
+ Flashing crustacean simulator:  John E Lewis & Aaron R Shifman, University of Ottawa
 -->
 <!DOCTYPE html>
 <html>
@@ -23,8 +22,12 @@ and open the template in the editor.
     parameterRange.I = [-20, 30];
     parameterRange.gFC = [0, 1];
 
+    var parameterIC = [];
+    parameterIC.gNa = [0.1, 0.04, 0.1, 0.1];
+    parameterIC.gFlash = [0.25, 0.06, 1.0, 1.0];
+
     var plotTitles = [];
-    plotTitles.legendNames = [['Membrane Voltage - 1', 'Channel State - 1'], ['Voltage de la Membrane - 1', 'State de Channel - 1']];
+    plotTitles.legendNames = [['Membrane Voltage - 1', 'Channel State - 1'], ['Voltage de la Membrane - 1', 'État des canaux - 1']];
     plotTitles.scaleNames = [['Voltage (mV)', 'Closed/Open'], ['Voltage (mV)', 'Fermé/Ouvert']];
 
     var language = 0;
@@ -41,8 +44,8 @@ and open the template in the editor.
         simulate = simulate0;
 
         gNa.spinner({
-            min: 0.0,
-            max: 0.5,
+            min: parameterRange.gNa[0],
+            max: parameterRange.gNa[1],
             step: 0.01,
             change: function () {
                 if (parseFloat(gNa.val()) < parameterRange.gNa[0]) {
@@ -53,8 +56,8 @@ and open the template in the editor.
             }
         });
         gK.spinner({
-            min: 0.0,
-            max: 0.5,
+            min: parameterRange.gK[0],
+            max: parameterRange.gK[1],
             step: 0.01,
             change: function () {
                 if (parseFloat(gK.val()) < parameterRange.gK[0]) {
@@ -65,8 +68,8 @@ and open the template in the editor.
             }
         });
         ENa.spinner({
-            min: 0,
-            max: 90,
+            min: parameterRange.ENa[0],
+            max: parameterRange.ENa[1],
             step: 1,
             change: function () {
                 if (parseFloat(ENa.val()) < parameterRange.ENa[0]) {
@@ -81,8 +84,8 @@ and open the template in the editor.
             }
         });
         EK.spinner({
-            min: -95,
-            max: -50,
+            min: parameterRange.EK[0],
+            max: parameterRange.EK[1],
             step: 1,
             spin: function () {
                 updateGraph()
@@ -98,9 +101,9 @@ and open the template in the editor.
         });
 
         IDC.spinner({
-            min: -20.0,
-            max: 30.0,
-            step: 0.1,
+            min: parameterRange.I[0],
+            max: parameterRange.I[1],
+            step: 1.0,
             change: function () {
                 if (parseFloat(IDC.val()) < parameterRange.I[0]) {
                     IDC.val(parameterRange.I[0])
@@ -110,9 +113,9 @@ and open the template in the editor.
             }
         });
         gFlash.spinner({
-            min: 0,
-            max: 1.0,
-            step: 0.05,
+            min: parameterRange.gFC[0],
+            max: parameterRange.gFC[1],
+            step: 0.02,
             change: function () {
                 if (parseFloat(gFlash.val()) < parameterRange.gFC[0]) {
                     gFlash.val(parameterRange.gFC[0])
@@ -145,10 +148,13 @@ and open the template in the editor.
                 var simulations = [simulate0, simulate1, simulate2, simulate3];
                 simulate = simulations[selectedSimulation];
 
+                gFlash.val(parameterIC.gFlash[selectedSimulation]);
+                gNa.val(parameterIC.gNa[selectedSimulation]);
+
                 for (var i = 0; i < 2; i++) {
                     for (var j = 0; j < 2; j++) {
                         plotTitles.legendNames[i][j] = plotTitles.legendNames[i][j].split(" ").slice(0, -1).join(" ") +
-                                " " + (selectedSimulation +1)
+                            " " + (selectedSimulation + 1)
                     }
                 }
             }
@@ -165,70 +171,72 @@ and open the template in the editor.
 </div>
 <div id="controlPane">
     <br/>
-    <span style="float:left;" class="en"><b>FLASHING CRUSTACEAN - Scenario 1</b></span>
-    <span style="float:left;" class="fr"><b>FLASHING CRUSTACEAN - Scenario 1 Fr</b></span><br/>
+    <span style="float:left;" class="en"><b>Flashing Crustacean</b></span>
+    <span style="float:left;" class="fr"><b>Crustacé brillant</b></span><br/>
 
     <hr/>
-    <span style="float:left;" class="en"><b>Resting Potential Properties</b></span>
-    <span style="float:left;" class="fr"><b>Properties De Resting Potential</b></span><br/>
 
-    <label for="gNa" class="en">Sodium Conductance</label>
-    <label for="gNa" class="fr">Conductance de Sodium</label>
-    <input id="gNa" value="0.1" class="slider_pane"/><span>S/m<sup>2</sup></span><br/>
+    <label for="gNa" class="en">Sodium conductance</label>
+    <label for="gNa" class="fr">Conductance du sodium</label>
+    <div class="suffix conductivity_spinner">
+        <input id="gNa" value="0.1" class="slider_pane"/><br/>
+    </div>
+    <label for="gK" class="en">Potassium conductance</label>
+    <label for="gK" class="fr">Conductance du potassium</label>
 
-    <label for="gK" class="en">Potassium Conductance</label>
-    <label for="gK" class="fr">Conductance de Potassium</label>
-    <input id="gK" class="slider_pane" value="0.2"/><span>S/m<sup>2</sup></span><br/>
-
-    <hr/>
-    <span style="float:left;" class="en"><b>Equilibrium Potentials</b></span>
-    <span style="float:left;" class="fr"><b>Potentiels d’équilibre</b></span><br/>
-
+    <div class="suffix conductivity_spinner">
+        <input id="gK" class="slider_pane" value="0.2"/><br/>
+    </div>
     <label for="ENa" class="en">Sodium Equilibrium Potential</label>
-    <label for="ENa" class="fr">Potentiel d’équilibre du Sodium</label>
-    <input id="ENa" class="slider_pane" value="55"/><span>mV</span><br/>
-
+    <label for="ENa" class="fr">Potentiel d’équilibre du sodium</label>
+    <div class="suffix equilibrium_spinner">
+        <input id="ENa" class="slider_pane" value="55"/><br/>
+    </div>
     <label for="EK" class="en">Potassium Equilibrium Potential</label>
-    <label for="EK" class="fr">Potentiel d’équilibre du Potassium</label>
-    <input id="EK" class="slider_pane" value="-72"/><span>mV</span><br/>
+    <label for="EK" class="fr">Potentiel d’équilibre du potassium</label>
+    <div class="suffix equilibrium_spinner">
+        <input id="EK" class="slider_pane" value="-72"/><br/>
+    </div>
+
+    <label for="gFlash" class="en">Flash Channel Conductance</label>
+    <label for="gFlash" class="fr">Conductance des canaux lumineux</label>
+    <div class="suffix conductivity_spinner">
+        <input id="gFlash" class="slider_pane" value="0.25"/><br/>
+    </div>
     <hr/>
 
-    <span style="float:left;" class="en"><b>DC Controls</b></span>
-    <span style="float:left;" class="fr"><b>Controls de la DC</b></span><br/>
-
-    <label for="IDC" class="en">Injected Current</label>
-    <label for="IDC" class="fr">Courant Injecté</label>
-    <input id="IDC" class="slider_pane" value="0"/><span>A/m<sup>2</sup></span><br/>
+    <label for="IDC" class="en">Injected current</label>
+    <label for="IDC" class="fr">Courant injecté</label>
+    <div class="suffix current_spinner">
+        <input id="IDC" class="slider_pane" value="0"/><br/>
+    </div>
     <hr/>
-    <span style="float:left;" class="en"><b>Flash Channel</b></span>
-    <span style="float:left;" class="fr"><b>Channel De Flash</b></span><br/>
 
-    <label for="gFlash" class="en">Conductance</label>
-    <label for="gFlash" class="fr">Conductance</label>
-    <input id="gFlash" class="slider_pane" value="0.25"/><br/>
+    <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
+    <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/><br/>
+    <span class="en">Refresh your browser to restore default values</span>
+    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs les paramètres du départ</span><br/>
+
     <hr/>
-    <span style="float:left;" class="en"><b>Simulation Controls</b></span>
-    <span style="float:left;" class="fr"><b>Contrôles de la Simulation</b></span><br/>
-    <label for="crustaceanSelector" class="en">Pick a Crustacean</label>
-    <label for="crustaceanSelector" class="fr">Fait le Pick Du Crustacé</label><br/>
+    <br/>
+    <label for="crustaceanSelector" class="en"><b>Choose a scenario</b></label>
+    <label for="crustaceanSelector" class="fr"><b>Choisissez un scénario</b></label><br/>
     <select name="speed" id="crustaceanSelector">
-        <option value="0" selected="selected">1</option>
+        <option value="0" selected>1</option>
         <option value="1">2</option>
         <option value="2">3</option>
         <option value="3">4</option>
-    </select><br/>
-    <label for="languageSelector" class="en">Change Language</label>
-    <label for="languageSelector" class="fr">Changé Le Languageé</label><br/>
-    <select name="speed" id="languageSelector">
-        <option value="0" selected="selected">English</option>
+    </select>
+
+    <span style="margin-left:64px"></span>
+    <select name="speed" id="languageSelector" title="language_picker">
+        <option value="0" selected>English</option>
         <option value="1">Francais</option>
     </select><br/>
-    <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
-    <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/>
 
-    <hr/>
-    <span class="en">Refresh your browser to restore default values</span>
-    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs les paramètres du départ</span>
+    <br/><br/>
+    <br/><br/>
+
 </div>
 
 <script type="text/javascript">
@@ -237,18 +245,18 @@ and open the template in the editor.
         $('#volt_graph').highcharts({
             chart: {
                 // Edit chart spacing
-                spacingBottom: 15,
-                spacingTop: 20,
+                spacingBottom: 25,
+                spacingTop: 50,
                 spacingLeft: 10,
                 spacingRight: 10,
                 // Explicitly tell the width and height of a chart
                 width: null,
-                height: 250
+                height: 270
 
             },
             hover: false,
             title: {
-                text: ' ' //'Neuron Dynamics'
+                text: ' '
             },
             xAxis: [{}],
             yAxis: [{
@@ -312,7 +320,7 @@ and open the template in the editor.
                 align: 'right',
                 x: 0,
                 verticalAlign: 'top',
-                y: 0,
+                y: -30,
                 floating: true,
                 backgroundColor: '#FFFFFF'
             },
@@ -341,19 +349,26 @@ and open the template in the editor.
             chart: {
                 // Edit chart spacing
                 spacingBottom: 15,
-                spacingTop: 20,
+                spacingTop: 40,
                 spacingLeft: 23,
                 spacingRight: 10,
                 // Explicitly tell the width and height of a chart
                 width: null,
-                height: 120
+                height: 140
 
             },
             hover: false,
             title: {
-                text: ' ' //'Neuron Dynamics'
+                text: ' '
             },
-            xAxis: [{}],
+            xAxis: [{
+                title: {
+                    text: 't (sec)',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+            }],
             yAxis: [{
                 min: 0,
                 max: 1,
@@ -386,7 +401,7 @@ and open the template in the editor.
                 align: 'right',
                 x: 0,
                 verticalAlign: 'top',
-                y: 0,
+                y: -30,
                 floating: true,
                 backgroundColor: '#FFFFFF'
             },
