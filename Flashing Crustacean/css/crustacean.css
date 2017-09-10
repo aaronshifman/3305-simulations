@@ -115,3 +115,7 @@ svg {
 .suffix {
     display: inline;
 }
+
+#crustaceanSelector + span{
+    margin-right: 64px;
+}
