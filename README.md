@@ -7,4 +7,5 @@ Collection of teaching simulations for BIO-3305 at uOttawa
 
 [Flashing Crustacean](http://htmlpreview.github.io/?https://github.com/aaronshifman/3305-simulations/blob/master/Flashing%20Crustacean/flashing_crustacean.html)
 
-[Molecular Motors](http://htmlpreview.github.io/?https://github.com/aaronshifman/3305-simulations/blob/master/Molecular%20Motors/MolMotorsExpt1.html)
+[Molecular Motors #1](http://htmlpreview.github.io/?https://github.com/aaronshifman/3305-simulations/blob/master/Molecular%20Motors/MolMotorsExpt1.html)
+[Molecular Motors #2](http://htmlpreview.github.io/?https://github.com/aaronshifman/3305-simulations/blob/master/Molecular%20Motors/MolMotorsExpt2.html)

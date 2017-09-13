@@ -3,480 +3,491 @@
 -->
 <!DOCTYPE html>
 <html>
-    <head>
-        <title></title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link rel="stylesheet" href="css/jqueryui.css">
-        <link rel="stylesheet" href="css/mm.css">        
-        <script src="./js/jquery.js"></script>
-        <script src="./js/jqueryui.js"></script>      
-        <script src="./js/highcharts.js"></script>        
-    </head>
-	<body style="font-family:'Verdana'">
-    <body>  
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $("#step_length_l").spinner({min:0,max:0.032,step:0.002})
-                $("#step_length_r").spinner({min:0,max:0.032,step:0.002})
-                $("#step_prob_l").spinner({min:0,max:0.5,step:0.05})
-                $("#step_prob_r").spinner({min:0,max:0.5,step:0.05})
-                $("#proc_factor_l").spinner({min:0,max:1,step:0.1})
-                $("#proc_factor_r").spinner({min:0,max:1,step:0.1})
-                $("#atp_factor").spinner({min:0,max:2,step:0.1})
-            });</script>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/jqueryui.css">
+    <link rel="stylesheet" href="css/mm.css">
+    <script src="./js/jquery.js"></script>
+    <script src="./js/jqueryui.js"></script>
+    <script src="./js/highcharts.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    var parameterRange = [];
+    parameterRange.step_length_l = [0, 0.032];
+    parameterRange.step_length_r = [0, 0.032];
+    parameterRange.P_l = [0, 0.5];
+    parameterRange.P_r = [0, 0.5];
+    parameterRange.proc_l = [0, 1];
+    parameterRange.proc_r = [0, 1];
+    parameterRange.atp_factor = [0, 2];
+    $(document).ready(function () {
 
-        <div id="options">
-            <div id="plotting_pane">
-				<div id="tracePlot" ></div>
-                <div id="distrib_graph" ></div>
-				<div id="raster_plot"></div>    <!-- not used in this version         -->
- 
-            </div>
-            <div id="controlPane">
-				
-				<img src = 'MolMotorsPic.gif' width='100%'/><br/>
-                <!-- <span lang="true" >Model Properties</span> -->
-				<span lang="true" > </span>
-				<br/><br/> 
-                <span lang="true">Step Length (left/right) </span><input type="text" value="0.016" id="step_length_l"/>um</span><input type="text" value="0.016" id="step_length_r"/>um</span><br/>
-                <span lang="true">Step Probability (left/right) </span><input type="text" value="0.0"id="step_prob_l"/> </span><input type="text" value="0.25" id="step_prob_r"/> </span><br/>
-                <span lang="true">Processivity Factor (left/right) </span><input type="text" value="0.0" id="proc_factor_l"/> </span><input type="text" value="0.0" id="proc_factor_r"/> </span><br/>
-                <span lang="true">ATP (fold increase, control=1) </span><input type="text" value = "1" id="atp_factor"/>  <br/>
-                <hr/>
+        var step_l = $("#step_length_l");
+        var step_r = $("#step_length_r");
+        var step_p_l = $("#step_prob_l");
+        var step_p_r = $("#step_prob_r");
+        var proc_l = $("#proc_factor_l");
+        var proc_r = $("#proc_factor_r");
+        var atp_factor = $("#atp_factor");
 
-                <input type="button" value="Run" id="runButton" onclick="simulate()"/><br/></br>
-				<span lang="true">Refresh your browser to restore default values</span></br>
-				
-				<hr/><br/>
-				<span style="margin-left:200px"></span> 
-				<select id='langSelect'>
-					<option value="0">English</option>
-					<option value="1">Francais</option>
-				</select>
-            </div>
-        </div>
-
-
-        <script type="text/javascript">
-		var h1 = 350
-		var h2 = 300
-		var h3 = 300
-		language  = 0
-		r_data = []
-		t_data = [[],[],[]]
-		dis_data = []
-		
-		langs = [[],[]] //english french
-		<!-- langs[0][0] = 'Model Properties' -->
-		langs[0][0] = ' '
-		langs[0][1] = 'Step Length (left/right)        '
-		langs[0][2] = 'Step Probability (left/right)   '
-		langs[0][3] = 'Processivity Factor (left/right)'
-		langs[0][4] = 'ATP (fold increase, control=1)      '
-		langs[0][5] = 'Refresh your browser to restore default values'
-		langs[0][6] = 'RUN'
-		langs[0][7] = 'Stochastic Tug-of-War: Experiment 2'
-		langs[0][8] = 'counts'
-		langs[0][9] = 'End position (um)'
-		langs[0][10] = 'Trial #'
-		langs[0][11] = 'Position (um)'
-		langs[0][12] = 'time (sec)'
-		langs[0][13]= 'Histogram (position @ 100sec)'
-		langs[0][14]= 'all trials'
-		
-		<!-- langs[1][0] = 'Propriétés du modèle' -->
-		langs[1][0] = ' '
-		langs[1][1] = 'amplitude de pas (g/d)        '
-		langs[1][2] = 'Probabilité de pas (g/d)      '
-		langs[1][3] = 'facteur de processivité (g/d)  '
-		langs[1][4] = 'ATP (nombre multiplication, contrôle=1)'
-		langs[1][5] = 'Rafraîchissez votre navigateur pour rétablir les valeurs des paramètres de départ'
-		langs[1][6] = 'Démarrer'
-		langs[1][7] = 'Tug-of-War Stochastique #2'
-		langs[1][8] = '#'
-		langs[1][9] = 'position  (um)'
-		langs[1][10] = '#'
-		langs[1][11] = 'Position (um)'
-		langs[1][12] = 'temps (s)'
-		langs[1][13]= 'Histogramme (position @ 100s)'
-		langs[1][14]= 'tous les essais'
-		
-		$(document).ready(function(){
-			setLangs(0)
-			
-			makeTrace([[],[],[]])
-			makeDistrib()
-			<!-- makeRaster() -->
-			$("#runButton").button()
-			$("#langSelect").selectmenu({
-				width:'150px',
-				change: function(evt,data){
-					setLangs(data.item.value)
-					language = data.item.value
-					r_data = []
-					t_data = [[],[],[]]
-					dis_data = []
-					makeTrace(t_data) 
-					makeDistrib()  
-					<!-- makeRaster() -->
-				}
-			})	
-		})
-		function setLangs(lang){
-			var spans = $('span[lang="true"]')
-			for (var i = 0; i<spans.length;i++){
-				$(spans[i]).html(langs[lang][i])
-			}	
-			$("#runButton").attr('value',langs[lang][6])
-		}
-		function makeTrace(data) {
-                $('#tracePlot').highcharts({
-                    chart: {
-						type:'line',
-                        zoomType: 'xy',
-						height:h1,
-						inverted: true
-                    },
-                    hover: true,
-                    title: {
-                        text: langs[language][7]
-                    },
-                    xAxis: [{
-							min:0,
-							max:100,
-							reversed: false,
-                            labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            title: {
-                                text: langs[language][12],
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            }
-                        }],
-                    yAxis: [{// Primary yAxis
-							max:0.5,
-							min:-0.5,
-                            labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            title: {
-                                text: langs[language][11],
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            opposite: false
-                        }],
-                    tooltip: {
-                        enabled: true,
-						valueDecimals: 3
-                    },
-					legend: {
-						layout: 'vertical',
-						align: 'left',
-						x: 70,
-						verticalAlign: 'top',
-						y: 200,
-						floating: true,
-						backgroundColor: '#FFFFFF'
-					},
-                    series: [{
-                            name: 'Trial 1',
-                            data: data[0],
-							color: 'rgba(200, 83, 83, .5)',
-							lineWidth : 0,
-							marker : {
-								enabled : true,
-								radius : 2
-							},
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    halo: {
-                                        size: 0
-                                    }
-                                }
-                            }
-
-                        },{
-                            name: 'Trial 2',
-                            data: data[1],
-							color: 'rgba(50, 120, 50, .5)',
-							lineWidth : 0,
-							marker : {
-								enabled : true,
-								radius : 3
-							},				
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    halo: {
-                                        size: 0
-                                    }
-                                }
-                            }
-
-                        },{
-                            name: 'Trial 3',
-                            data: data[2],
-							color: 'rgba(50, 115, 221, .5)',
-							lineWidth : 0,
-							marker : {
-								enabled : true,
-								radius : 2
-							},							
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    halo: {
-                                        size: 0
-                                    }
-                                }
-                            }
-
-                        }]
-
-                });
-            }
-            function makeRaster(data) {
-                $('#raster_plot').highcharts({
-                    chart: {
-                        type:'scatter',
-                        zoomType: 'xy',
-						height:h2
-                    },
-                    hover: true,
-                    title: {
-                        text: langs[language][14]
-                    },
-                    xAxis: [{
-							min: -0.5,
-							max: 0.5,
-                            labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            title: {
-                                text: langs[language][9],
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            }
-                        }],
-                    yAxis: [{// Primary yAxis
-					        min: 0,
-                            max: 1000,
-                            labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            title: {
-                                text: langs[language][10],
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            opposite: true
-                        }],
-                    tooltip: {
-                        enabled: true
-                    },
-                    legend: {enabled:false},
-                    series: [{
-                            name: 'position/trial',
-                            data: data,
-							marker : {
-								enabled : true,
-								radius : 2
-							},	
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    halo: {
-                                        size: 0
-                                    }
-                                }
-                            }
-
-                        }]
-                });
-            }
-			var vals;
-			function makeDistrib(data){
-				vals = []
-				for(var i in data){
-					vals.push(data[i][0])
-				}
-				bins = [-0.51,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5]
-				counts = [0,0,0,0,0,0,0,0,0,0,0,0]
-				for(var i in vals){
-					if(vals[i] <= bins[0]){
-						counts[0] = counts[0]+1
-					}else if(vals[i]> bins[10]){
-						counts[11] = counts[11]+1
-					}else{
-						for(var j=0;j<10;j++){
-							if((vals[i] > bins[j]) && (vals[i]<=bins[j+1])){
-								counts[j+1] = counts[j+1]+1
-								break;
-							}
-						}
-					}
-				}
-				bins = ['<-0.5','-0.5 - -0.4','-0.4 - -0.3','-0.3 - -0.2','-0.2 - -0.1','-0.1 - 0','0 - 0.1','0.1 - 0.2','0.2 - 0.3','0.3 - 0.4','0.4 - 0.5','>0.5']
-				// don't plot fall-off events
-				bins = bins.slice(1,bins.length-1)
-				counts=counts.slice(1,counts.length-1)
-				
-				$('#distrib_graph').highcharts({
-                    chart: {
-                        type:'column',
-						height:h3
-                    },
-                    hover: true,
-                    title: {
-                        text: langs[language][13]
-                    },
-                    xAxis: [{
-							categories:bins,
-                            labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            title: {
-                                text: langs[language][9],
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            }
-                        }],
-                    yAxis: [{// Primary yAxis
-							//min: 0,
-							//max: 1000,
-                            labels: {
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            title: {
-                                text: langs[language][8],
-                                style: {
-                                    color: Highcharts.getOptions().colors[1]
-                                }
-                            },
-                            opposite: false
-                        }],
-                    tooltip: {
-                        enabled: true
-                    },
-                    legend: {enabled:false},
-					plotOptions: {
-						column: {
-							groupPadding: 0,
-							pointPadding: 0,
-							borderWidth: 0
-						}
-					},
-                    series: [{
-                            name: 'Number',
-                            data: counts,
-							color: 'rgba(100, 100, 100, .9)',
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    halo: {
-                                        size: 0
-                                    }
-                                }
-                            }
-
-                        }]
-                });
-			}
-            function simulate() {
-                var step_length = [parseFloat($('#step_length_l').spinner("value")),parseFloat($('#step_length_r').spinner("value"))]
-                var step_prob = [parseFloat($('#step_prob_l').spinner("value")),parseFloat($('#step_prob_r').spinner("value"))]
-                var proc_factor = [parseFloat($('#proc_factor_l').spinner("value")),parseFloat($('#proc_factor_r').spinner("value"))]
-                var atp_factor = parseFloat($('#atp_factor').spinner("value"))
-                traces = []
-                var tmax=100  // arb units (steps)
-                var dt=1
-				var r_on=1
-				var l_on=1
-                var time = []
-                for(var i = 0; i*dt<=tmax; i++){
-                  time[i] = i*dt
+        step_l.spinner({
+            min: parameterRange.step_length_l[0],
+            max: parameterRange.step_length_l[1],
+            step: 0.002,
+            change: function () {
+                if (parseFloat(step_l.val()) < parameterRange.step_length_l[0]) {
+                    step_l.val(parameterRange.step_length_l[0]);
+                } else if (parseFloat(step_l.val()) > parameterRange.step_length_l[1]) {
+                    step_l.val(parameterRange.step_length_l[1]);
                 }
-                numtrials=1000 //num realizations of single cargo trial
-                x=[] // position over time and trials
-                tleft=[]  // time spent moving in each direction
-                tright=[]
-                data = []
-                for (var i = 0; i<numtrials;i++){
-                  x.push([0])
-				  motor_on=1
-				  plstep=0.5				  
+            }
+        });
+        step_r.spinner({
+            min: parameterRange.step_length_r[0],
+            max: parameterRange.step_length_r[1],
+            step: 0.002,
+            change: function () {
+                if (parseFloat(step_r.val()) < parameterRange.step_length_r[0]) {
+                    step_r.val(parameterRange.step_length_r[0]);
+                } else if (parseFloat(step_r.val()) > parameterRange.step_length_r[1]) {
+                    step_r.val(parameterRange.step_length_r[1]);
+                }
+            }
+        });
+        step_p_l.spinner({
+            min: parameterRange.P_l[0],
+            max: parameterRange.P_l[1],
+            step: 0.05,
+            change: function () {
+                if (parseFloat(step_p_l.val()) < parameterRange.P_l[0]) {
+                    step_p_l.val(parameterRange.P_l[0]);
+                } else if (parseFloat(step_p_l.val()) > parameterRange.P_l[1]) {
+                    step_p_l.val(parameterRange.P_l[1]);
+                }
+            }
+        });
+        step_p_r.spinner({
+            min: parameterRange.P_r[0],
+            max: parameterRange.P_r[1],
+            step: 0.05,
+            change: function () {
+                if (parseFloat(step_p_r.val()) < parameterRange.P_r[0]) {
+                    step_p_r.val(parameterRange.P_r[0]);
+                } else if (parseFloat(step_p_r.val()) > parameterRange.P_r[1]) {
+                    step_p_r.val(parameterRange.P_r[1]);
+                }
+            }
+        });
+        proc_l.spinner({
+            min: parameterRange.proc_l[0],
+            max: parameterRange.proc_l[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(proc_l.val()) < parameterRange.proc_l[0]) {
+                    proc_l.val(parameterRange.proc_l[0]);
+                } else if (parseFloat(proc_l.val()) > parameterRange.proc_l[1]) {
+                    proc_l.val(parameterRange.proc_l[1]);
+                }
+            }
+        });
+        proc_r.spinner({
+            min: parameterRange.proc_r[0],
+            max: parameterRange.proc_r[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(proc_r.val()) < parameterRange.proc_r[0]) {
+                    proc_r.val(parameterRange.proc_r[0]);
+                } else if (parseFloat(proc_r.val()) > parameterRange.proc_r[1]) {
+                    proc_r.val(parameterRange.proc_r[1]);
+                }
+            }
+        });
+        atp_factor.spinner({
+            min: parameterRange.atp_factor[0],
+            max: parameterRange.atp_factor[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(atp_factor.val()) < parameterRange.atp_factor[0]) {
+                    atp_factor.val(parameterRange.atp_factor[0]);
+                } else if (parseFloat(atp_factor.val()) > parameterRange.atp_factor[1]) {
+                    atp_factor.val(parameterRange.atp_factor[1]);
+                }
+            }
+        })
+    });
+</script>
 
-                  for (var t in time){
-                    x[i].push(0)
-                    t = parseInt(t)+1
-					//
-					rn=Math.random()   // either motor falls off, then cargo gone
-					
-					if (rn<0.02*(proc_factor[0]+proc_factor[1])){
-						motor_on=0
-						x[i][t]=(99)
-					}
-					
-					if (motor_on>0){
-						rn=Math.random()
-						x[i][t]=x[i][t-1]						
-						if (rn<plstep){   // then left step													  
-							  rn=Math.random()
-							  p=step_prob[0]*atp_factor*0.8   
-							  if (rn<p){
-								x[i][t]=x[i][t-1]-step_length[0]
-								if (x[i][t]< -0.5) {x[i][t]= -0.5}						
-								tleft[i]+=dt
-								plstep=plstep*1.2
-							  }																																								
-						}
-						else{ //then right step												
-							  rn=Math.random()
-							  p=step_prob[1]*atp_factor*0.8    
-							  if(rn<p){
-								x[i][t]=x[i][t-1]+step_length[1]
-								if (x[i][t]>0.5) {x[i][t]=0.5}	
-								tright[i]+=dt 
-								plstep=plstep*0.8								
-							  }						  						  											  								  												
-						}
-					}
-					else {x[i][t]=(99)}
-					
-                  }
-				  traces.push(x[i])
-                  data.push([x[i][x[i].length-1],i])
-				}
-				t_data = traces
-				r_data = data
-				dis_data = data
-              
-				makeDistrib(data)
-				makeTrace(traces)
-				<!-- makeRaster(data); -->
-				}
-        </script>
-    </body>
+<div id="plotting_pane">
+    <div id="tracePlot"></div>
+    <div id="distrib_graph"></div>
+</div>
+<div id="controlPane">
+    <img src='MolMotorsPic.gif'/><br/>
+    <br/><br/>
+
+    <label for="step_length_l" class="en">Step Length (left/right)</label>
+    <label for="step_length_l" class="fr">Amplitude de Pas (g/d)</label>
+    <div class="suffix distance_spinner">
+        <input value="0.016" id="step_length_l" class="slider_pane"/>
+    </div>
+    <div class="suffix distance_spinner">
+        <input value=" 0.016" class="slider_pane" id="step_length_r" title="step_r"/><br/>
+    </div>
+    <label for="step_prob_l" class="en">Step Probability (left/right)</label>
+    <label for="step_prob_l" class="fr">Probabilité de Pas (g/d)</label>
+
+    <input value="0.0" id="step_prob_l" class="slider_pane"/>
+    <input value="0.25" id="step_prob_r" class="slider_pane" title="prob_r"/>
+    <br/>
+
+    <label for="proc_factor_l" class="en">Processivity Factor (left/right)</label>
+    <label for="proc_factor_l" class="fr">Facteur de Processivité (g/d)</label>
+    <input value="0.0" id="proc_factor_l" class="slider_pane"/>
+    <input value="0.0" id="proc_factor_r" class="slider_pane" title="proc_r"/><br/>
+
+
+    <label for="atp_factor" class="en">ATP (fold increase, control=1)</label>
+    <label for="atp_factor" class="fr">ATP (nombre multiplication, contrôle=1)</label>
+    <input class="slider_pane" value="1" id="atp_factor"/> <br/>
+    <hr/>
+
+    <input class="runButton en" type="button" value="Run" onclick="simulate()"/>
+    <input class="runButton fr" type="button" value="Démarrer" onclick="simulate()"/><br/></br>
+    <span class="en">Refresh your browser to restore default values</span>
+    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs des paramètres de départ</span></br>
+
+    <hr/>
+    <br/>
+    <select id='langSelect' title="language_picker">
+        <option value="0">English</option>
+        <option value="1">Francais</option>
+    </select>
+</div>
+
+
+<script type="text/javascript">
+    var h1 = 350;
+    var h3 = 300;
+    var language = 0;
+    var languages = ['en', 'fr'];
+
+    var plotTitles = [];
+    plotTitles.legendNames = [['Trial'], ['Essai']];
+    plotTitles.scaleNames = [['Position (um)', 'Time (s)', 'End position (um)', 'Counts'], ['Position (um)', 'Temps (s)', 'Position  (um)', '#']];
+    plotTitles.titles = [['Stochastic Tug-of-War: Experiment 1', 'Histogram (Position @ 100sec)'], ['Tug-of-War Stochastique #1', 'Histogramme (Position @ 100s)']];
+    r_data = [];
+    t_data = [[], [], []];
+    dis_data = [];
+
+
+    $(document).ready(function () {
+        makeTrace([[], [], []]);
+        makeDistrib([]);
+        $(".runButton").button();
+        $("#langSelect").selectmenu({
+            change: function () {
+                language = parseInt($(this).val());
+                $("." + languages[language]).css('display', 'inline');
+                $("." + languages[1 - language]).css('display', 'none');
+
+                var graph = $('#tracePlot');
+                for (var i = 0; i < 3; i++) {
+                    graph.highcharts().series[i].update({name: plotTitles.legendNames[language][0] + " - " + (i + 1)});
+                }
+                graph.highcharts().setTitle({text: plotTitles.titles[language][0]});
+                graph.highcharts().xAxis[0].setTitle({text: plotTitles.scaleNames[language][1]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][0]});
+
+                graph = $('#distrib_graph');
+                //graph.highcharts().series[0].update({name: plotTitles.legendNames[language][1]});
+                graph.highcharts().setTitle({text: plotTitles.titles[language][1]});
+                graph.highcharts().yAxis[0].setTitle({text: plotTitles.scaleNames[language][3]});
+                graph.highcharts().xAxis[0].setTitle({text: plotTitles.scaleNames[language][2]});
+            }
+        })
+    });
+
+
+    function makeTrace(data) {
+        $('#tracePlot').highcharts({
+            chart: {
+                type: 'line',
+                zoomType: 'xy',
+                height: h1,
+                inverted: true
+            },
+            hover: true,
+            title: {
+                text: plotTitles.titles[language][0]
+            },
+            xAxis: [{
+                min: 0,
+                max: 100,
+                reversed: false,
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: plotTitles.scaleNames[language][1],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }],
+            yAxis: [{// Primary yAxis
+                max: 0.5,
+                min: -0.5,
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: plotTitles.scaleNames[language][0],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                opposite: false
+            }],
+            tooltip: {
+                enabled: true,
+                valueDecimals: 3
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                x: 70,
+                verticalAlign: 'top',
+                y: 200,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: plotTitles.legendNames[language][0] + ' - 1',
+                data: data[0],
+                color: 'rgba(200, 83, 83, .5)',
+                lineWidth: 0,
+                marker: {
+                    enabled: true,
+                    radius: 2
+                },
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }, {
+                name: plotTitles.legendNames[language][0] + ' - 2',
+                data: data[1],
+                color: 'rgba(50, 120, 50, .5)',
+                lineWidth: 0,
+                marker: {
+                    enabled: true,
+                    radius: 3
+                },
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }, {
+                name: plotTitles.legendNames[language][0] + ' - 3',
+                data: data[2],
+                color: 'rgba(50, 115, 221, .5)',
+                lineWidth: 0,
+                marker: {
+                    enabled: true,
+                    radius: 2
+                },
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }]
+
+        });
+    }
+
+    function makeDistrib(data) {
+        var bins = [-0.51, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5];
+        var counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        for (var d = 0; d < data.length; d++) {
+            var val = data[d];
+            if (val <= bins[0]) {
+                counts[0]++;
+            } else if (val > bins[10]) {
+                counts[11] = counts[11]++
+            } else {
+                for (var j = 0; j < 10; j++) {
+                    if ((val > bins[j]) && (val <= bins[j + 1])) {
+                        counts[j + 1]++;
+                        break;
+                    }
+                }
+            }
+        }
+        bins = ['-0.5 - -0.4', '-0.4 - -0.3', '-0.3 - -0.2', '-0.2 - -0.1', '-0.1 - 0', '0 - 0.1', '0.1 - 0.2', '0.2 - 0.3', '0.3 - 0.4', '0.4 - 0.5'];
+        counts = counts.slice(1, counts.length - 1);
+
+        $('#distrib_graph').highcharts({
+            chart: {
+                type: 'column',
+                height: h3
+            },
+            hover: true,
+            title: {
+                text: plotTitles.titles[language][1]
+            },
+            xAxis: [{
+                categories: bins,
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: plotTitles.scaleNames[language][2],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }],
+            yAxis: [{// Primary yAxis
+                //min: 0,
+                //max: 1000,
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: plotTitles.scaleNames[language][3],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                opposite: false
+            }],
+            tooltip: {
+                enabled: true
+            },
+            legend: {enabled: false},
+            plotOptions: {
+                column: {
+                    groupPadding: 0,
+                    pointPadding: 0,
+                    borderWidth: 0
+                }
+            },
+            series: [{
+                name: 'Number',
+                data: counts,
+                color: 'rgba(100, 100, 100, .9)',
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+
+            }]
+        });
+    }
+
+    function simulate() {
+        var tmax = 100;
+        var num_trials = 1000;
+
+        var traces = [];
+
+        var x = new Array(num_trials); // position over time and trials
+
+        var t_left = new Array(num_trials);  // time spent moving in each direction
+        var t_right = new Array(num_trials);
+        var data = [];
+
+        var step_length = [parseFloat($('#step_length_l').spinner("value")), parseFloat($('#step_length_r').spinner("value"))];
+        var step_prob = [parseFloat($('#step_prob_l').spinner("value")), parseFloat($('#step_prob_r').spinner("value"))];
+        var proc_factor = [parseFloat($('#proc_factor_l').spinner("value")), parseFloat($('#proc_factor_r').spinner("value"))];
+        var atp_factor = parseFloat($('#atp_factor').spinner("value"));
+
+        for (var i = 0; i < num_trials; i++) {
+            x[i] = new Array(tmax + 1);
+            x[i][0] = 0;
+            t_left[i] = 0;
+            t_right[i] = 0;
+
+            var motor_on = 1;
+            var plstep = 0.5;
+
+            for (var t = 0; t < tmax; t++) {
+                x[i][t + 1] = x[i][t];
+                if (motor_on) {
+                    var rn = Math.random();  // either motor falls off, then cargo gone
+
+                    if (rn < 0.02 * (proc_factor[0] + proc_factor[1])) {
+                        motor_on = 0;
+                        x[i][t + 1] = 99;
+                        continue;
+                    }
+
+                    if (rn < plstep) {   // then left step
+                        var p = step_prob[0] * atp_factor*0.8;
+                        rn = Math.random();
+                        if (rn < p) {
+                            x[i][t + 1] = x[i][t] - step_length[0];
+                            if (x[i][t + 1] < -0.5) {
+                                x[i][t + 1] = -0.5
+                            }
+                            t_left[i] += 1
+                        }
+                        plstep*=1.2;
+                    }
+                    else { //then right step
+                        p = step_prob[1] * atp_factor*0.8;
+                        rn = Math.random();
+                        if (rn < p) {
+                            x[i][t + 1] = x[i][t] + step_length[1];
+                            if (x[i][t + 1] > 0.5) {
+                                x[i][t + 1] = 0.5;
+                            }
+                            t_right[i] += 1;
+                        }
+                        plstep*=0.8;
+                    }
+                } else {
+                    x[i][t + 1] = 99;
+                }
+            }
+            traces.push(x[i]);
+            data.push(x[i].slice(-1)[0]);
+        }
+        makeDistrib(data);
+        makeTrace(traces);
+    }
+
+</script>
+</body>
 </html>
 
-	
