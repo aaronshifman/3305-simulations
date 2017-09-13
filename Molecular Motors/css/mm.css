@@ -11,7 +11,8 @@ root {
 }
 
 body {
-    font-family: Verdana;
+    font-family: Verdana !important;
+    font-size: 16px !important;
 }
 
 #controlPane {
@@ -51,7 +52,7 @@ svg {
 }
 
 .distance_spinner .ui-spinner:before {
-    content: "um";
+    content: "\03bc m";
     width: 50px;
     padding-top: 2px;
     position: absolute;
@@ -73,4 +74,8 @@ svg {
 
 img {
     width: 100%;
+}
+
+.ui-widget{
+    font-size:1em !important;
 }

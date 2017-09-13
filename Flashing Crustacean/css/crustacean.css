@@ -73,7 +73,8 @@ svg {
 }
 
 .body {
-    font-family: Verdana;
+    font-family: Verdana !important;
+    font-size: 16px !important;
 }
 
 .conductivity_spinner .ui-spinner:before {
@@ -118,4 +119,8 @@ svg {
 
 #crustaceanSelector + span{
     margin-right: 64px;
+}
+
+.ui-widget{
+    font-size: 1em !important;
 }

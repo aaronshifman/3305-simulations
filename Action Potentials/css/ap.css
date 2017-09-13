@@ -66,7 +66,8 @@ svg {
 }
 
 .body {
-    font-family: Verdana;
+    font-family: Verdana !important;
+    font-size:16px !important;
 }
 
 .conductivity_spinner .ui-spinner:before {
@@ -98,13 +99,19 @@ svg {
 
 .current_spinner .ui-spinner:before {
     content: "A/m\00B2";
+    font-family: Verdana;
     width: 100px;
     padding-top: 2px;
     position: absolute;
     top: 0;
     right: 0;
+    font-size: 16px !important;
 }
 
 .suffix {
     display: inline;
+}
+
+.ui-widget{
+    font-size: 1em !important;
 }
