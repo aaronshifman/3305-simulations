@@ -194,7 +194,7 @@ and open the template in the editor.
     <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/><br/>
 
     <span class="en">Refresh your browser to restore default values</span>
-    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs des paramètres de départ</span></br>
+    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs des paramètres de départ</span><br/>
 
     <select id='langSelect' title="language_picker">
         <option value="0">English</option>
@@ -203,10 +203,6 @@ and open the template in the editor.
 </div>
 
 <script type="text/javascript">
-    var xdata = []
-    var ydata = []
-    var zdata = []
-    var ldata = []
     var language = 0;
     languages = ['en', 'fr'];
 
@@ -508,9 +504,6 @@ and open the template in the editor.
         makeGraph_X(X);
         makeGraph_Y(Y);
         makeGraph_Z(Z);
-        xdata = X;
-        ydata = Y;
-        zdata = Z;
     }
 
 
