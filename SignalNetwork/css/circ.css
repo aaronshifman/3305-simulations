@@ -1,0 +1,60 @@
+/* 
+    Document   : hh
+    Created on : 31-Aug-2015, 3:21:51 PM
+    Author     : Aaron
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root {
+    display: block;
+}
+
+body {
+    font-family: 'Verdana';
+}
+
+#controll_pane {
+    float: right;
+    width: 40%;
+    margin-left: 50px;
+}
+
+#plotting_pane {
+    float: left;
+    width: 50%;
+    margin-right: 50px;
+}
+
+.slider_pane {
+    width: 50px;
+    margin-right: 15px;
+    margin-left: 25px;
+    display: inline-block;
+    height: 15px
+}
+
+body {
+    font-size: 16px !important;
+    font-family: Verdana !important;
+}
+
+svg {
+    width: 100%;
+}
+
+input[type=text] {
+    width: 50px !important;
+}
+
+.ui-widget {
+    font-size: 1em !important;
+}
+
+.fr {
+    display: none;
+}
+
+#langSelect {
+    width: 150px;
+}

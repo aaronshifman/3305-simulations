@@ -1,0 +1,519 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/jqueryui.css">
+    <link rel="stylesheet" href="css/circ.css">
+    <script src="./js/jquery.js"></script>
+    <script src="./js/jqueryui.js"></script>
+    <script src="./js/highcharts.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+    var parameterRange = [];
+    parameterRange.K1 = [0, 2];
+    parameterRange.n = [1, 6];
+    parameterRange.K3 = [0, 2];
+    parameterRange.K5 = [0, 2];
+    parameterRange.V2 = [0, 10];
+    parameterRange.V4 = [0, 10];
+    parameterRange.V6 = [0, 10];
+    parameterRange.T = [200, 1000];
+    $(document).ready(function () {
+
+        var K1_spin = $("#K1_spin");
+        var N_spin = $("#n_spin");
+        var K3_spin = $("#K3_spin");
+        var K5_spin = $("#K5_spin");
+        var V2_spin = $("#V2_spin");
+        var V4_spin = $("#V4_spin");
+        var V6_spin = $("#V6_spin");
+        var T_spin = $("#T_spin");
+
+        K1_spin.spinner({
+            min: parameterRange.K1[0],
+            max: parameterRange.K1[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(K1_spin.val()) < parameterRange.K1[0]) {
+                    K1_spin.val(parameterRange.K1[0]);
+                } else if (parseFloat(K1_spin.val()) > parameterRange.K1[1]) {
+                    K1_spin.val(parameterRange.K1[1]);
+                }
+            }
+        });
+        N_spin.spinner({
+            min: parameterRange.n[0],
+            max: parameterRange.n[1],
+            step: 1,
+            change: function () {
+                if (parseFloat(N_spin.val()) < parameterRange.n[0]) {
+                    N_spin.val(parameterRange.n[0]);
+                } else if (parseFloat(N_spin.val()) > parameterRange.n[1]) {
+                    N_spin.val(parameterRange.n[1]);
+                }
+            }
+        });
+        K3_spin.spinner({
+            min: parameterRange.K3[0],
+            max: parameterRange.K3[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(K3_spin.val()) < parameterRange.K3[0]) {
+                    K3_spin.val(parameterRange.K3[0]);
+                } else if (parseFloat(K3_spin.val()) > parameterRange.K3[1]) {
+                    K3_spin.val(parameterRange.K3[1]);
+                }
+            }
+        });
+        K5_spin.spinner({
+            min: parameterRange.K5[0],
+            max: parameterRange.K5[1],
+            step: 0.1,
+            change: function () {
+                if (parseFloat(K5_spin.val()) < parameterRange.K5[0]) {
+                    K5_spin.val(parameterRange.K5[0]);
+                } else if (parseFloat(K5_spin.val()) > parameterRange.K5[1]) {
+                    K5_spin.val(parameterRange.K5[1]);
+                }
+            }
+        });
+        V2_spin.spinner({
+            min: parameterRange.V2[0],
+            max: parameterRange.V2[1],
+            step: 0.05,
+            change: function () {
+                if (parseFloat(V2_spin.val()) < parameterRange.V2[0]) {
+                    V2_spin.val(parameterRange.V2[0]);
+                } else if (parseFloat(V2_spin.val()) > parameterRange.V2[1]) {
+                    V2_spin.val(parameterRange.V2[1]);
+                }
+            }
+        });
+        V4_spin.spinner({
+            min: parameterRange.V4[0],
+            max: parameterRange.V4[1],
+            step: 0.05,
+            change: function () {
+                if (parseFloat(V4_spin.val()) < parameterRange.V4[0]) {
+                    V4_spin.val(parameterRange.V4[0]);
+                } else if (parseFloat(V4_spin.val()) > parameterRange.V4[1]) {
+                    V4_spin.val(parameterRange.V4[1]);
+                }
+            }
+        });
+        V6_spin.spinner({
+            min: parameterRange.V6[0],
+            max: parameterRange.V6[1],
+            step: 0.05,
+            change: function () {
+                if (parseFloat(V6_spin.val()) < parameterRange.V6[0]) {
+                    V6_spin.val(parameterRange.V6[0]);
+                } else if (parseFloat(V6_spin.val()) > parameterRange.V6[1]) {
+                    V6_spin.val(parameterRange.V6[1]);
+                }
+            }
+        });
+        T_spin.spinner({
+            min: parameterRange.T[0],
+            max: parameterRange.T[1],
+            step: 100,
+            change: function () {
+                if (parseFloat(T_spin.val()) < parameterRange.T[0]) {
+                    T_spin.val(parameterRange.T[0]);
+                } else if (parseFloat(T_spin.val()) > parameterRange.T[1]) {
+                    T_spin.val(parameterRange.T[1]);
+                }
+            }
+        });
+
+        $(".runButton").button();
+        makeGraph_X();
+        makeGraph_Y();
+        makeGraph_Z();
+    });
+
+</script>
+<div id="plotting_pane">
+    <div id="X_graph"></div>
+    <div id="Y_graph"></div>
+    <div id="Z_graph"></div>
+</div>
+<div id="control_pane">
+    <hr/>
+    <span class="en"><b>Circadian network parameters</b></span>
+    <span class="fr"><b>Parameters de Network</b></span><br/><br/>
+
+    <label for="K1_spin">K1 </label>
+    <input type="text" value="1" id="K1_spin"/> EC50 (txI->per)<br/>
+
+    <label for="n_spin">n </label>
+    <input type="text" value="4" id="n_spin"/>
+    <span class="en">sensitivity (txI->per) </span>
+    <span class="fr">le sensitivity (txI->per) </span><br/>
+
+    <label for="K3_spin">K3 </label>
+    <input type="text" value="0.7" id="K3_spin"/>
+    <span class="en">activation (per->PER)</span>
+    <span class="fr">le activation</span><br/>
+
+    <label for="K5_spin">K5 </label>
+    <input type="text" value="0.7" id="K5_spin"/>
+    <span class="en"> activation (PER->txI) </span>
+    <span class="fr">le activation 2</span><br/>
+
+    <label for="V2_spin">V2 </label>
+    <input type="text" value="0.35" id="V2_spin"/>
+    <span class="en"> per degradation rate </span>
+    <span class="fr">le degredation </span><br/>
+
+    <label for="V4_spin">V4 </label>
+    <input type="text" value="0.35" id="V4_spin"/>
+    <span class="en"> PER degradation rate </span>
+    <span class="fr">le degredation 2</span><br/>
+
+    <label for="V6_spin">V6 </label>
+    <input type="text" value="0.35" id="V6_spin"/>
+    <span class="en">txI degradation rate</span>
+    <span class="fr">le degredation 3</span><br/>
+
+    <label for="T_spin">Tm</label>
+    <input type="text" value="200" id="T_spin"/>
+    <span class="en">Total time (h)</span>
+    <span class="fr">Le time totale</span><br/>
+
+    <hr/>
+    <br/>
+    <input type="button" value="Run" class="runButton en" onclick="simulate()"/>
+    <input type="button" value="Démarrer" class="runButton fr" onclick="simulate()"/><br/><br/>
+
+    <span class="en">Refresh your browser to restore default values</span>
+    <span class="fr">Rafraîchissez votre navigateur pour rétablir les valeurs des paramètres de départ</span></br>
+
+    <select id='langSelect' title="language_picker">
+        <option value="0">English</option>
+        <option value="1">Francais</option>
+    </select>
+</div>
+
+<script type="text/javascript">
+    var xdata = []
+    var ydata = []
+    var zdata = []
+    var ldata = []
+    var language = 0;
+    languages = ['en', 'fr'];
+
+    $(document).ready(function () {
+        $("#langSelect").selectmenu({
+            change: function () {
+                language = parseInt($(this).val());
+                $("." + languages[language]).css('display', 'inline');
+                $("." + languages[1 - language]).css('display', 'none');
+            }
+        })
+
+    });
+
+    function makeGraph_X(X) {
+        $('#X_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 10,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                <!--  width: null, -->
+                height: 170
+
+            },
+            hover: false,
+            title: {
+                text: ' '
+            },
+            xAxis: [{
+                min: 0,
+                max: parseFloat($("#T_spin").val()),
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: ' ', //langs[language][12],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }],
+            yAxis: [{
+                title: {
+                    text: 'concentration (nM)', //langs[language][30],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} h</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} nM </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                x: 70,
+                verticalAlign: 'top',
+                y: -25,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: 'per (mRNA)', //langs[language][22],
+                pointStart: 0,
+                pointInterval: 0.1,
+                data: X,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+            }]
+        });
+    }
+
+
+    function makeGraph_Y(Y) {
+        $('#Y_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 10,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 170
+
+            },
+            hover: false,
+            title: {
+                text: ' '
+            },
+            xAxis: [{
+                min: 0,
+                max: parseFloat($("#T_spin").val()),
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: ' ', //langs[language][12],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }],
+            yAxis: [{
+                title: {
+                    text: 'concentration (nM)', //langs[language][30],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} h</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} nM </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                x: 70,
+                verticalAlign: 'top',
+                y: -25,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: 'PER', //langs[language][22],
+                pointStart: 0,
+                pointInterval: 0.1,
+                data: Y,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+            }]
+        });
+    }
+
+    function makeGraph_Z(Z) {
+        $('#Z_graph').highcharts({
+            chart: {
+                // Edit chart spacing
+                spacingBottom: 15,
+                spacingTop: 20,
+                spacingLeft: 10,
+                spacingRight: 10,
+                // Explicitly tell the width and height of a chart
+                width: null,
+                height: 170
+
+            },
+            hover: false,
+            title: {
+                text: ' '
+            },
+            xAxis: [{
+                min: 0,
+                max: parseFloat($("#T_spin").val()),
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: 'time (h)', //langs[language][12],
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }],
+            yAxis: [{
+                title: {
+                    text: 'concentration (nM)', //langs[language][30],
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+            }],
+            tooltip: {
+                //enabled: true
+                shared: true,
+                useHTML: true,
+                headerFormat: '<small>{point.x:,.1f} h</small><table>',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                '<td style="text-align: right"><b>{point.y} nM </b></td></tr>',
+                footerFormat: '</table>',
+                valueDecimals: 2
+
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                x: 70,
+                verticalAlign: 'top',
+                y: -25,
+                floating: true,
+                backgroundColor: '#FFFFFF'
+            },
+            series: [{
+                name: 'txI', //langs[language][22],
+                pointStart: 0,
+                pointInterval: 0.1,
+                data: Z,
+                states: {
+                    hover: {
+                        enabled: true,
+                        halo: {
+                            size: 0
+                        }
+                    }
+                }
+            }]
+        });
+    }
+
+    function simulate() {
+        var dt = 0.1;
+
+        var K2 = 1.0;
+        var K4 = 1.0;
+        var K6 = 1.0;
+        var V1 = 0.7; // nM/hr
+        var nn = parseFloat($("#n_spin").val());
+        var V2 = parseFloat($("#V2_spin").val());
+        var V4 = parseFloat($("#V4_spin").val());
+        var V6 = parseFloat($("#V6_spin").val());
+        var K1 = parseFloat($("#K1_spin").val());
+        var K3 = parseFloat($("#K3_spin").val());
+        var K5 = parseFloat($("#K5_spin").val());
+        var Xi = 0.1;
+        var Yi = 0.1;
+        var Zi = 2.5;
+
+        var len = parseFloat($("#T_spin").val());
+        var nSteps = len / dt;
+
+        var X = new Array(nSteps);
+        var Y = new Array(nSteps);
+        var Z = new Array(nSteps);
+
+        X[0] = Xi;
+        Y[0] = Yi;
+        Z[0] = Zi;
+
+        for (var i = 0; i < nSteps - 1; i++) {
+            var dx = V1 * Math.pow(K1, nn) / (Math.pow(K1, nn) + Math.pow(Z[i], nn)) - V2 * X[i] / (K2 + X[i]);
+            var dy = K3 * X[i] - V4 * Y[i] / (K4 + Y[i]);
+            var dz = K5 * Y[i] - V6 * Z[i] / (K6 + Z[i]);
+            X[i + 1] = X[i] + dt * dx;
+            Y[i + 1] = Y[i] + dt * dy;
+            Z[i + 1] = Z[i] + dt * dz;
+        }
+        makeGraph_X(X);
+        makeGraph_Y(Y);
+        makeGraph_Z(Z);
+        xdata = X;
+        ydata = Y;
+        zdata = Z;
+    }
+
+
+</script>
+</body>
+</html>
